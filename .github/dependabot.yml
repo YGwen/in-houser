@@ -1,0 +1,27 @@
+# Weekly dependency updates. Patch/minor npm updates are tested and merged automatically
+# by .github/workflows/pr.yml; major updates and GitHub Actions updates wait for a review.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for all safe updates, so they don't conflict on package-lock.json.
+      minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci

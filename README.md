@@ -27,6 +27,12 @@ npm run build    # static site in dist/
 Every push to `main` runs the tests, builds the app and publishes it to GitHub Pages
 (`.github/workflows/deploy.yml`): https://ygwen.github.io/in-houser/
 
+## Dependency updates
+
+Dependabot (`.github/dependabot.yml`) opens weekly update PRs. Every PR is tested
+(`.github/workflows/pr.yml`); patch/minor npm updates are merged automatically and the site redeployed.
+Major updates and GitHub Actions updates wait for a review.
+
 ## Announcer voice
 
 The announcer plays clips from `public/voice/`, generated locally with [Piper](https://github.com/OHF-Voice/piper1-gpl).

@@ -1,0 +1,47 @@
+# Test every pull request. Dependabot's patch/minor npm updates are then merged automatically
+# and the site is redeployed; major updates and workflow (GitHub Actions) updates wait for a review.
+name: Pull request checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  automerge:
+    needs: test
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - id: meta
+        uses: dependabot/fetch-metadata@v2
+      # Merge here rather than with GitHub's auto-merge: merges done by the workflow token don't
+      # trigger the deploy workflow, so we start it explicitly right after.
+      - name: Merge safe npm updates and redeploy
+        if: >-
+          steps.meta.outputs.package-ecosystem == 'npm_and_yarn' &&
+          steps.meta.outputs.update-type != 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr merge "$PR_URL" --squash --delete-branch
+          gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main
