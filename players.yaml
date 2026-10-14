@@ -9,7 +9,7 @@ players:
     role: support
     playing: true
   - name: Tsyuko
-    rank: 4
+    rank: 3
     playing: true
   - name: ToLLL
     rank: 5
@@ -18,7 +18,7 @@ players:
     rank: 3
     playing: true
   - name: Greg
-    rank: 4
+    rank: 3
     playing: true
   - name: Zeult
     rank: 4
@@ -28,13 +28,13 @@ players:
     role: adc
     playing: true
   - name: Samy
-    rank: 4
+    rank: 3
     playing: true
   - name: Azod
-    rank: 4
+    rank: 3
     playing: true
   - name: Momo
-    rank: 3
+    rank: 2
     playing: true
   - name: Thogae
     rank: 3
@@ -52,7 +52,7 @@ players:
     rank: 3
     playing: false
   - name: Alex
-    rank: 4
+    rank: 3
     playing: false
   - name: Neo
     rank: 2
@@ -61,8 +61,8 @@ players:
     rank: 2
     playing: false
   - name: Dydyre
-    rank: 4
+    rank: 2
     playing: false
   - name: Undee
-    rank: 2
+    rank: 1
     playing: false
