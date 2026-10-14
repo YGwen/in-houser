@@ -1,21 +1,27 @@
 // Generate announcer voice clips with Piper (local neural text-to-speech).
 //
-//   npm run voice                 -> uses ./players.yaml
+//   npm run voice                 -> uses ./players.yaml, only generates missing or changed clips
+//   npm run voice -- --all        -> regenerate every clip
 //   npm run voice -- path/to.yaml
 //
 // Writes public/voice/{lines,names}/*.wav and public/voice/manifest.json, which the reveal plays
 // (with echo and grit added live). Players without a clip fall back to the browser voice.
 // Optional per player in the YAML:  say: "how to pronounce the name"
+//
+// Existing clips are kept by default: Piper output varies slightly between runs, so regenerating
+// would change voices you already approved. A clip is redone when its text changes (e.g. a new `say:`).
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const playersPath = resolve(process.argv[2] ?? join(root, 'players.yaml'));
+const args = process.argv.slice(2);
+const regenerateAll = args.includes('--all');
+const playersPath = resolve(args.find((a) => !a.startsWith('--')) ?? join(root, 'players.yaml'));
 const venv = join(root, '.venv-voice');
 const python = join(venv, process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
 const model = process.env.VOICE_MODEL ?? join(venv, 'voices', 'en_US-ryan-high.onnx');
@@ -67,21 +73,45 @@ const items = [
   ...names.map(({ name, say }) => ({ file: `names/${slug(name)}.wav`, text: say ? `${say}!` : spokenName(name), style: 'name' })),
 ];
 
-// Start clean so removed players don't leave stale clips behind.
-rmSync(outDir, { recursive: true, force: true });
-mkdirSync(outDir, { recursive: true });
+const manifestPath = join(outDir, 'manifest.json');
+const previous = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {};
+const previousTexts = previous.texts ?? {};
 
-console.log(`Generating ${items.length} clips with ${model.split(/[\\/]/).pop()}...`);
-const run = spawnSync(python, [join(root, 'scripts', 'piper_batch.py'), '--model', model, '--out', outDir], {
-  input: JSON.stringify(items),
-  stdio: ['pipe', 'inherit', 'inherit'],
-});
-if (run.status !== 0) process.exit(run.status ?? 1);
+// Keep a clip when it exists and its text is unchanged (clips from before texts were recorded are kept too).
+const isUpToDate = (item) =>
+  existsSync(join(outDir, item.file)) && (previousTexts[item.file] ?? item.text) === item.text;
+const todo = regenerateAll ? items : items.filter((item) => !isUpToDate(item));
+
+mkdirSync(outDir, { recursive: true });
+if (todo.length) {
+  console.log(`Generating ${todo.length} of ${items.length} clips with ${model.split(/[\\/]/).pop()}...`);
+  const run = spawnSync(python, [join(root, 'scripts', 'piper_batch.py'), '--model', model, '--out', outDir], {
+    input: JSON.stringify(todo),
+    stdio: ['pipe', 'inherit', 'inherit'],
+  });
+  if (run.status !== 0) process.exit(run.status ?? 1);
+} else {
+  console.log('All clips are up to date (use --all to regenerate everything).');
+}
+
+// Remove clips of players that are no longer in the YAML.
+const wanted = new Set(items.map((item) => item.file));
+for (const dir of ['lines', 'names']) {
+  const path = join(outDir, dir);
+  if (!existsSync(path)) continue;
+  for (const file of readdirSync(path)) {
+    if (!wanted.has(`${dir}/${file}`)) {
+      rmSync(join(path, file));
+      console.log(`  removed ${dir}/${file}`);
+    }
+  }
+}
 
 const manifest = {
   voice: model.split(/[\\/]/).pop().replace(/\.onnx$/, ''),
   lines: Object.fromEntries(LINES.map(([id]) => [id, `lines/${id}.wav`])),
   names: Object.fromEntries(names.map(({ name }) => [nameKey(name), `names/${slug(name)}.wav`])),
+  texts: Object.fromEntries(items.map((item) => [item.file, item.text])),
 };
-writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 console.log(`Done: ${names.length} player names + ${LINES.length} lines in public/voice/`);

@@ -66,3 +66,6 @@ players:
   - name: Undee
     rank: 1
     playing: false
+  - name: Diegz
+    rank: 3
+    playing: false

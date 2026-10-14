@@ -46,4 +46,6 @@ Then export `players.yaml` from the app into the project root and run:
 npm run voice
 ```
 
+Only missing or changed clips are generated, so voices you already like stay the same
+(`npm run voice -- --all` regenerates everything).
 Add `say: "..."` to a player in `players.yaml` to fix how their name is pronounced.
