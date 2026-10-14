@@ -22,6 +22,11 @@ npm test         # team generator tests
 npm run build    # static site in dist/
 ```
 
+## Deploy
+
+Every push to `main` runs the tests, builds the app and publishes it to GitHub Pages
+(`.github/workflows/deploy.yml`): https://ygwen.github.io/in-houser/
+
 ## Announcer voice
 
 The announcer plays clips from `public/voice/`, generated locally with [Piper](https://github.com/OHF-Voice/piper1-gpl).
