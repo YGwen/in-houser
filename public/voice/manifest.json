@@ -1,0 +1,35 @@
+{
+    "voice":  "en_US-ryan-high",
+    "lines":  {
+                  "top":  "lines/top.wav",
+                  "jungle":  "lines/jungle.wav",
+                  "mid":  "lines/mid.wav",
+                  "adc":  "lines/adc.wav",
+                  "support":  "lines/support.wav",
+                  "versus":  "lines/versus.wav",
+                  "duel":  "lines/duel.wav",
+                  "fight":  "lines/fight.wav"
+              },
+    "names":  {
+                  "maas":  "names/maas-288bf2.wav",
+                  "tsyuko":  "names/tsyuko-90edc6.wav",
+                  "tolll":  "names/tolll-3d325f.wav",
+                  "dmz":  "names/dmz-e0642f.wav",
+                  "greg":  "names/greg-79e247.wav",
+                  "zeult":  "names/zeult-2823b6.wav",
+                  "gorhok":  "names/gorhok-b14271.wav",
+                  "samy":  "names/samy-f8f626.wav",
+                  "azod":  "names/azod-c057bf.wav",
+                  "momo":  "names/momo-77add4.wav",
+                  "thogae":  "names/thogae-db1fbf.wav",
+                  "nefer":  "names/nefer-46f245.wav",
+                  "balwé":  "names/balw-48a65a.wav",
+                  "dibs":  "names/dibs-62a6c6.wav",
+                  "asha":  "names/asha-b8797b.wav",
+                  "alex":  "names/alex-60c6d2.wav",
+                  "neo":  "names/neo-66b928.wav",
+                  "ely":  "names/ely-2ac015.wav",
+                  "dydyre":  "names/dydyre-58f008.wav",
+                  "undee":  "names/undee-3aac42.wav"
+              }
+}

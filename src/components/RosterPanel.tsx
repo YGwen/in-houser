@@ -1,0 +1,144 @@
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { playersFromYaml, playersToYaml } from '../playersYaml';
+import { newId } from '../storage';
+import { ROLES, ROLE_LABELS, type Player, type Rank, type Role } from '../types';
+
+interface Props {
+  players: Player[];
+  onChange: (players: Player[]) => void;
+}
+
+const RANK_OPTIONS: Rank[] = [1, 2, 3, 4, 5];
+
+function RoleSelect({ value, onChange }: { value: Role | null; onChange: (r: Role | null) => void }) {
+  return (
+    <select
+      value={value ?? ''}
+      onChange={(e) => onChange((e.target.value || null) as Role | null)}
+      title="New players can be locked to one role"
+    >
+      <option value="">Random role</option>
+      {ROLES.map((r) => (
+        <option key={r} value={r}>
+          🔒 {ROLE_LABELS[r]}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function RankSelect({ value, onChange }: { value: Rank; onChange: (r: Rank) => void }) {
+  return (
+    <select value={value} onChange={(e) => onChange(Number(e.target.value) as Rank)} title="Skill: 1 = beginner, 5 = best">
+      {RANK_OPTIONS.map((r) => (
+        <option key={r} value={r}>
+          {'★'.repeat(r)}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+export default function RosterPanel({ players, onChange }: Props) {
+  const [name, setName] = useState('');
+  const [rank, setRank] = useState<Rank>(3);
+  const [fixedRole, setFixedRole] = useState<Role | null>(null);
+
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [importError, setImportError] = useState('');
+
+  const activeCount = players.filter((p) => p.active).length;
+
+  const exportYaml = () => {
+    const blob = new Blob([playersToYaml(players)], { type: 'application/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'players.yaml';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importYaml = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-importing the same file
+    if (!file) return;
+    const out = playersFromYaml(await file.text());
+    if (!out.ok) {
+      setImportError(`Import failed — ${out.error}`);
+      return;
+    }
+    setImportError('');
+    if (players.length && !window.confirm(`Replace the current ${players.length} players with ${out.players.length} from ${file.name}? Duels will be cleared.`)) {
+      return;
+    }
+    onChange(out.players);
+  };
+  const update = (id: string, patch: Partial<Player>) => onChange(players.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+
+  const add = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    onChange([...players, { id: newId(), name: trimmed, rank, fixedRole, active: activeCount < 10 }]);
+    setName('');
+    setFixedRole(null);
+  };
+
+  return (
+    <section className="panel roster">
+      <div className="panel-head">
+        <h2>Players</h2>
+        <span className={`counter ${activeCount === 10 ? 'ok' : ''}`}>{activeCount}/10 playing</span>
+      </div>
+
+      <form className="add-player" onSubmit={add}>
+        <input placeholder="Summoner name" value={name} onChange={(e) => setName(e.target.value)} maxLength={24} />
+        <RankSelect value={rank} onChange={setRank} />
+        <RoleSelect value={fixedRole} onChange={setFixedRole} />
+        <button className="btn primary" type="submit" disabled={!name.trim()}>
+          Add
+        </button>
+      </form>
+
+      {players.length === 0 ? (
+        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best). Lock a role for new players.</p>
+      ) : (
+        <ul className="player-list">
+          {players.map((p) => (
+            <li key={p.id} className={p.active ? 'active' : ''}>
+              <input
+                type="checkbox"
+                checked={p.active}
+                onChange={(e) => update(p.id, { active: e.target.checked })}
+                title="Playing tonight"
+              />
+              <input className="name" value={p.name} onChange={(e) => update(p.id, { name: e.target.value })} maxLength={24} />
+              <RankSelect value={p.rank} onChange={(r) => update(p.id, { rank: r })} />
+              <RoleSelect value={p.fixedRole} onChange={(r) => update(p.id, { fixedRole: r })} />
+              <button className="btn icon" onClick={() => onChange(players.filter((x) => x.id !== p.id))} title="Remove player">
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="row-actions">
+        {players.length > 0 && (
+          <button className="btn" onClick={() => onChange(players.map((p) => ({ ...p, active: false })))}>
+            Unselect all
+          </button>
+        )}
+        <button className="btn" onClick={exportYaml} disabled={players.length === 0}>
+          ⬇ Export players.yaml
+        </button>
+        <button className="btn" onClick={() => fileInput.current?.click()}>
+          ⬆ Import YAML
+        </button>
+        <input ref={fileInput} type="file" accept=".yaml,.yml" hidden onChange={importYaml} />
+      </div>
+      {importError && <p className="errors-inline">{importError}</p>}
+    </section>
+  );
+}
