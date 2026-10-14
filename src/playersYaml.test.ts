@@ -24,6 +24,14 @@ describe('players YAML', () => {
     expect(out).toMatchObject({ ok: true, players: [{ name: 'Zeus', rank: 3, fixedRole: null, active: false }] });
   });
 
+  it('derives stable ids from names, deduplicating collisions', () => {
+    const yaml = 'players:\n  - { name: Greg, rank: 3 }\n  - { name: greg, rank: 2 }\n';
+    const first = playersFromYaml(yaml);
+    const second = playersFromYaml(yaml);
+    expect(first.ok && first.players.map((p) => p.id)).toEqual(['p:greg', 'p:greg#2']);
+    expect(second.ok && second.players.map((p) => p.id)).toEqual(['p:greg', 'p:greg#2']);
+  });
+
   it('rejects bad ranks, roles and syntax', () => {
     expect(playersFromYaml('players:\n  - name: A\n    rank: 7\n').ok).toBe(false);
     expect(playersFromYaml('players:\n  - name: A\n    rank: 3\n    role: carry\n').ok).toBe(false);

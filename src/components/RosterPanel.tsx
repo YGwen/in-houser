@@ -1,11 +1,12 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { playersFromYaml, playersToYaml } from '../playersYaml';
-import { newId } from '../storage';
+import { playerId, playersFromYaml, playersToYaml } from '../playersYaml';
 import { ROLES, ROLE_LABELS, type Player, type Rank, type Role } from '../types';
 
 interface Props {
   players: Player[];
   onChange: (players: Player[]) => void;
+  /** Replace the roster with the repo's players.yaml (keeps "playing tonight" ticks). */
+  onResetToRepo: () => void;
 }
 
 const RANK_OPTIONS: Rank[] = [1, 2, 3, 4, 5];
@@ -39,7 +40,7 @@ function RankSelect({ value, onChange }: { value: Rank; onChange: (r: Rank) => v
   );
 }
 
-export default function RosterPanel({ players, onChange }: Props) {
+export default function RosterPanel({ players, onChange, onResetToRepo }: Props) {
   const [name, setName] = useState('');
   const [rank, setRank] = useState<Rank>(3);
   const [fixedRole, setFixedRole] = useState<Role | null>(null);
@@ -69,7 +70,7 @@ export default function RosterPanel({ players, onChange }: Props) {
       return;
     }
     setImportError('');
-    if (players.length && !window.confirm(`Replace the current ${players.length} players with ${out.players.length} from ${file.name}? Duels will be cleared.`)) {
+    if (players.length && !window.confirm(`Replace the current ${players.length} players with ${out.players.length} from ${file.name}?`)) {
       return;
     }
     onChange(out.players);
@@ -80,7 +81,8 @@ export default function RosterPanel({ players, onChange }: Props) {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
-    onChange([...players, { id: newId(), name: trimmed, rank, fixedRole, active: activeCount < 10 }]);
+    const id = playerId(trimmed, players.map((p) => p.id));
+    onChange([...players, { id, name: trimmed, rank, fixedRole, active: activeCount < 10 }]);
     setName('');
     setFixedRole(null);
   };
@@ -137,8 +139,18 @@ export default function RosterPanel({ players, onChange }: Props) {
           ⬆ Import YAML
         </button>
         <input ref={fileInput} type="file" accept=".yaml,.yml" hidden onChange={importYaml} />
+        <button
+          className="btn"
+          onClick={() => window.confirm("Replace this device's roster with players.yaml from the repo? Local changes are lost.") && onResetToRepo()}
+        >
+          ↺ Reset to repo roster
+        </button>
       </div>
       {importError && <p className="errors-inline">{importError}</p>}
+      <p className="hint">
+        The roster comes from <code>players.yaml</code> in the repo. Changes made here stay on this device; to share
+        them, export <code>players.yaml</code> and commit it.
+      </p>
     </section>
   );
 }

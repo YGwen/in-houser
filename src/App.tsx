@@ -8,11 +8,25 @@ import RosterPanel from './components/RosterPanel';
 import TeamsView from './components/TeamsView';
 import { generate } from './generator';
 import { EVENING_MS, toPlayedGame } from './history';
+import { REPO_ROSTER_VERSION, mergeRepoRoster, repoRoster } from './roster';
 import { MAX_HISTORY, loadState, newId, saveState } from './storage';
 import type { Duel, PlayedGame, Player, TeamResult } from './types';
 
+/**
+ * Saved state, with the roster refreshed from the repo's players.yaml when this device has never
+ * loaded it or the file has changed since (local edits are kept until then).
+ */
+function loadInitialState() {
+  const saved = loadState();
+  if (saved.rosterVersion === REPO_ROSTER_VERSION && saved.players.length) return saved;
+  const players = mergeRepoRoster(repoRoster(), saved.players);
+  const ids = new Set(players.map((p) => p.id));
+  const duels = saved.duels.filter((d) => ids.has(d.challengerId) && ids.has(d.opponentId));
+  return { ...saved, players, duels, rosterVersion: REPO_ROSTER_VERSION };
+}
+
 export default function App() {
-  const [initial] = useState(loadState);
+  const [initial] = useState(loadInitialState);
   const [players, setPlayers] = useState<Player[]>(initial.players);
   const [duels, setDuels] = useState<Duel[]>(initial.duels);
   const [tolerance, setTolerance] = useState(initial.tolerance);
@@ -25,7 +39,7 @@ export default function App() {
   const [revealing, setRevealing] = useState(false);
 
   useEffect(
-    () => saveState({ players, duels, tolerance, muted, announcer, history }),
+    () => saveState({ players, duels, tolerance, muted, announcer, history, rosterVersion: REPO_ROSTER_VERSION }),
     [players, duels, tolerance, muted, announcer, history],
   );
   useEffect(() => {
@@ -79,7 +93,11 @@ export default function App() {
       </header>
 
       <main className="layout">
-        <RosterPanel players={players} onChange={updatePlayers} />
+        <RosterPanel
+          players={players}
+          onChange={updatePlayers}
+          onResetToRepo={() => updatePlayers(mergeRepoRoster(repoRoster(), players))}
+        />
         <div className="side">
           <DuelPanel players={players.filter((p) => p.active)} duels={duels} onChange={setDuels} />
 

@@ -1,5 +1,4 @@
 import { parse, stringify } from 'yaml';
-import { newId } from './storage';
 import { ROLES, type Player, type Rank, type Role } from './types';
 
 /** Shape of one player in players.yaml. `role` is only written for players locked to a role. */
@@ -31,6 +30,18 @@ export function playersToYaml(players: Player[]): string {
   return HEADER + stringify(doc);
 }
 
+/**
+ * Stable id derived from the name, so history and duels still match after reloading the roster
+ * from players.yaml. Names that collide (case-insensitive) get a numeric suffix.
+ */
+export function playerId(name: string, taken: Iterable<string> = []): string {
+  const used = new Set(taken);
+  const base = `p:${name.trim().toLowerCase()}`;
+  let id = base;
+  for (let n = 2; used.has(id); n++) id = `${base}#${n}`;
+  return id;
+}
+
 export type ImportResult = { ok: true; players: Player[] } | { ok: false; error: string };
 
 export function playersFromYaml(text: string): ImportResult {
@@ -60,7 +71,7 @@ export function playersFromYaml(text: string): ImportResult {
       return { ok: false, error: `${name}: role must be one of ${ROLES.join(', ')}.` };
     }
     players.push({
-      id: newId(),
+      id: playerId(name, players.map((p) => p.id)),
       name,
       rank: rank as Rank,
       fixedRole: role as Role | null,

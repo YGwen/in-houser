@@ -11,6 +11,8 @@ export interface SavedState {
   announcer: boolean;
   /** Most recent first. */
   history: PlayedGame[];
+  /** Version of the repo's players.yaml this device last loaded (see src/roster.ts). */
+  rosterVersion?: string;
 }
 
 export const DEFAULT_STATE: SavedState = { players: [], duels: [], tolerance: 1, muted: false, announcer: true, history: [] };
