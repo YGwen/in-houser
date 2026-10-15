@@ -17,10 +17,29 @@ function RoleSelect({ value, onChange }: { value: Role | null; onChange: (r: Rol
       onChange={(e) => onChange((e.target.value || null) as Role | null)}
       title="New players can be locked to one role"
     >
-      <option value="">Random role</option>
+      <option value="">Any role</option>
       {ROLES.map((r) => (
         <option key={r} value={r}>
           🔒 {ROLE_LABELS[r]}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function BanSelect({ value, disabled, onChange }: { value: Role | null; disabled: boolean; onChange: (r: Role | null) => void }) {
+  return (
+    <select
+      className={`ban ${value && !disabled ? 'set' : ''}`}
+      value={disabled ? '' : (value ?? '')}
+      disabled={disabled}
+      onChange={(e) => onChange((e.target.value || null) as Role | null)}
+      title={disabled ? 'Locked players always get their role' : 'A role this player never gets'}
+    >
+      <option value="">🚫 No ban</option>
+      {ROLES.map((r) => (
+        <option key={r} value={r}>
+          🚫 {ROLE_LABELS[r]}
         </option>
       ))}
     </select>
@@ -31,6 +50,7 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
   const [name, setName] = useState('');
   const [rank, setRank] = useState<Rank>(3);
   const [fixedRole, setFixedRole] = useState<Role | null>(null);
+  const [bannedRole, setBannedRole] = useState<Role | null>(null);
 
   const fileInput = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = useState('');
@@ -69,9 +89,11 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
     const trimmed = name.trim();
     if (!trimmed) return;
     const id = playerId(trimmed, players.map((p) => p.id));
-    onChange([...players, { id, name: trimmed, rank, fixedRole, active: activeCount < 10 }]);
+    const ban = fixedRole ? null : bannedRole;
+    onChange([...players, { id, name: trimmed, rank, fixedRole, bannedRole: ban, active: activeCount < 10 }]);
     setName('');
     setFixedRole(null);
+    setBannedRole(null);
   };
 
   return (
@@ -85,13 +107,14 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
         <input placeholder="Summoner name" value={name} onChange={(e) => setName(e.target.value)} maxLength={24} />
         <StarRating value={rank} onChange={setRank} />
         <RoleSelect value={fixedRole} onChange={setFixedRole} />
+        <BanSelect value={bannedRole} disabled={!!fixedRole} onChange={setBannedRole} />
         <button className="btn primary" type="submit" disabled={!name.trim()}>
           Add
         </button>
       </form>
 
       {players.length === 0 ? (
-        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best), half stars allowed. Lock a role for new players.</p>
+        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best), half stars allowed. Lock a role for new players, or ban a role someone never wants.</p>
       ) : (
         <ul className="player-list">
           {players.map((p) => (
@@ -105,6 +128,11 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
               <input className="name" value={p.name} onChange={(e) => update(p.id, { name: e.target.value })} maxLength={24} />
               <StarRating value={p.rank} onChange={(r) => update(p.id, { rank: r })} />
               <RoleSelect value={p.fixedRole} onChange={(r) => update(p.id, { fixedRole: r })} />
+              <BanSelect
+                value={p.bannedRole ?? null}
+                disabled={!!p.fixedRole}
+                onChange={(r) => update(p.id, { bannedRole: r })}
+              />
               <button className="btn icon" onClick={() => onChange(players.filter((x) => x.id !== p.id))} title="Remove player">
                 ✕
               </button>

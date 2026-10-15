@@ -116,6 +116,40 @@ describe('generate', () => {
   });
 });
 
+describe('banned roles', () => {
+  const roleOf = (r: TeamResult, id: string) => laneOf(r.blue, id) ?? laneOf(r.red, id);
+
+  it('never assigns a banned role', () => {
+    const bans: Role[] = ['top', 'jungle', 'mid', 'adc', 'support', 'top', 'jungle', 'mid', 'adc', 'support'];
+    const players = makePlayers(Object.fromEntries(bans.map((bannedRole, i) => [i, { bannedRole }])));
+    for (let seed = 1; seed <= 50; seed++) {
+      const r = run(players, [], 1, seed);
+      players.forEach((p) => expect(roleOf(r, p.id)).not.toBe(p.bannedRole));
+    }
+  });
+
+  it('puts a duel in the only lane the bans leave open', () => {
+    // Everyone but the two duelists bans jungle, so the duel has to be in the jungle.
+    const players = makePlayers(Object.fromEntries([2, 3, 4, 5, 6, 7, 8, 9].map((i) => [i, { bannedRole: 'jungle' as Role }])));
+    for (let seed = 1; seed <= 30; seed++) {
+      const r = run(players, [duel(0, 1)], 1, seed);
+      expect(r.duelLanes).toEqual(['jungle']);
+    }
+  });
+
+  it('a locked role overrides a ban', () => {
+    const players = makePlayers({ 0: { fixedRole: 'support', bannedRole: 'support' } });
+    expect(roleOf(run(players), 'p0')).toBe('support');
+  });
+
+  it('reports bans that make teams impossible', () => {
+    const allBanTop = makePlayers(Object.fromEntries(RANKS.map((_, i) => [i, { bannedRole: 'top' as Role }])));
+    expect(generate({ players: allBanTop, duels: [], tolerance: 1, rng: seeded(1) }).ok).toBe(false);
+    const players = makePlayers({ 0: { bannedRole: 'mid' } });
+    expect(validate(players, [duel(0, 1, 'mid')]).length).toBeGreaterThan(0);
+  });
+});
+
 describe('half stars', () => {
   it('balances teams with half-star ranks', () => {
     const halves = [5, 4.5, 4, 3.5, 3, 3, 2.5, 2, 1.5, 1]; // total 30 -> best gap 0

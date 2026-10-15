@@ -36,6 +36,9 @@ function forcedDuelLane(duel: Duel, byId: Map<string, Player>): Role | null {
   return byId.get(duel.challengerId)?.fixedRole ?? byId.get(duel.opponentId)?.fixedRole ?? null;
 }
 
+/** True if `player` must never get `role` (a lock to a role overrides any ban). */
+export const isBanned = (player: Player, role: Role) => !player.fixedRole && player.bannedRole === role;
+
 export function validate(players: Player[], duels: Duel[]): string[] {
   const errors: string[] = [];
   const active = players.filter((p) => p.active);
@@ -78,6 +81,9 @@ export function validate(players: Player[], duels: Duel[]): string[] {
     }
     const lane = forcedDuelLane(duel, byId);
     if (lane) {
+      for (const p of [a, b]) {
+        if (isBanned(p, lane)) errors.push(`Duel ${label}: ${p.name} has banned ${ROLE_LABELS[lane]}.`);
+      }
       if (forcedLanes.has(lane)) errors.push(`Two duels are set on ${ROLE_LABELS[lane]}.`);
       forcedLanes.set(lane, duel);
     }
@@ -87,8 +93,8 @@ export function validate(players: Player[], duels: Duel[]): string[] {
 }
 
 /**
- * Assign roles for one team split. Returns null if no assignment satisfies fixed roles and duels.
- * Duel lanes are found by backtracking, so null really means impossible for this split.
+ * Assign roles for one team split. Returns null if no assignment satisfies fixed roles, bans and duels.
+ * Duel lanes are found by backtracking (checking everyone else can still avoid their ban), so null really means impossible for this split.
  */
 export function assignRoles(
   blueTeam: Player[],
@@ -122,8 +128,40 @@ export function assignRoles(
   const duelLanes: Role[] = [];
   const fits = (slot: Player | undefined, p: Player) => !slot || slot.id === p.id;
 
+  // Hand out the free roles of both teams; false if bans make that impossible.
+  const fillTeams = (): boolean => {
+    const picks: [Partial<TeamRoster>, Role, Player][] = [];
+    for (const [team, slots] of [
+      [blueTeam, blue],
+      [redTeam, red],
+    ] as const) {
+      const placed = new Set(Object.values(slots).flatMap((p) => (p ? [p.id] : [])));
+      const rest = team.filter((p) => !placed.has(p.id));
+      const freeRoles = ROLES.filter((r) => !slots[r]);
+      // Try every way to hand out the free roles (at most 5! = 120) and keep one of the least repetitive.
+      const cost = rest.map((p) => freeRoles.map((r) => (isBanned(p, r) ? Infinity : rolePenalty(p, r))));
+      let best: number[][] = [];
+      let bestScore = Infinity;
+      for (const order of indexPermutations(rest.length)) {
+        let score = 0;
+        for (let i = 0; i < order.length; i++) score += cost[order[i]][i];
+        if (score < bestScore - 1e-9) {
+          best = [order];
+          bestScore = score;
+        } else if (score < bestScore + 1e-9) {
+          best.push(order);
+        }
+      }
+      if (!best.length) return false; // every assignment hits a banned role
+      const chosen = best[Math.floor(rng() * best.length)];
+      freeRoles.forEach((r, i) => picks.push([slots, r, rest[chosen[i]]]));
+    }
+    for (const [slots, role, player] of picks) slots[role] = player;
+    return true;
+  };
+
   const placeDuels = (i: number): boolean => {
-    if (i === pairs.length) return true;
+    if (i === pairs.length) return fillTeams();
     const { duel, blueP, redP } = pairs[i];
     const forced = duel.lane !== 'random' ? duel.lane : (blueP.fixedRole ?? redP.fixedRole);
     // Random order, but lanes the duelists played recently are tried last.
@@ -135,6 +173,7 @@ export function assignRoles(
       // A fixed duelist can only be placed in their own lane.
       if (blueP.fixedRole && blueP.fixedRole !== lane) continue;
       if (redP.fixedRole && redP.fixedRole !== lane) continue;
+      if (isBanned(blueP, lane) || isBanned(redP, lane)) continue;
       const prevBlue = blue[lane];
       const prevRed = red[lane];
       blue[lane] = blueP;
@@ -149,31 +188,6 @@ export function assignRoles(
   };
 
   if (!placeDuels(0)) return null;
-
-  for (const [team, slots] of [
-    [blueTeam, blue],
-    [redTeam, red],
-  ] as const) {
-    const placed = new Set(Object.values(slots).map((p) => p!.id));
-    const rest = team.filter((p) => !placed.has(p.id));
-    const freeRoles = ROLES.filter((r) => !slots[r]);
-    // Try every way to hand out the free roles (at most 5! = 120) and keep one of the least repetitive.
-    const cost = rest.map((p) => freeRoles.map((r) => rolePenalty(p, r)));
-    let best: number[][] = [];
-    let bestScore = Infinity;
-    for (const order of indexPermutations(rest.length)) {
-      let score = 0;
-      for (let i = 0; i < order.length; i++) score += cost[order[i]][i];
-      if (score < bestScore - 1e-9) {
-        best = [order];
-        bestScore = score;
-      } else if (score < bestScore + 1e-9) {
-        best.push(order);
-      }
-    }
-    const chosen = best[Math.floor(rng() * best.length)];
-    freeRoles.forEach((r, i) => (slots[r] = rest[chosen[i]]));
-  }
 
   const penalty = ROLES.reduce((s, r) => s + rolePenalty(blue[r]!, r) + rolePenalty(red[r]!, r), 0);
   return { blue: blue as TeamRoster, red: red as TeamRoster, duelLanes, penalty };
@@ -231,7 +245,7 @@ export function generate({ players, duels, tolerance, history = [], now = Date.n
   }
 
   if (!valid.length) {
-    return { ok: false, errors: ['No valid teams exist with these locked roles and duels. Try changing a duel lane or a locked role.'] };
+    return { ok: false, errors: ['No valid teams exist with these locked roles, bans and duels. Try changing a duel lane, a locked role or a ban.'] };
   }
 
   // Balance first: only splits close to the best rank gap.

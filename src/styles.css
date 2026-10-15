@@ -199,7 +199,11 @@ input[type='checkbox'] {
 .player-list select {
   flex: 0 1 auto;
 }
-@media (max-width: 600px) {
+/* Wrap player rows when the roster panel itself is narrow (phone, or beside the Duels panel). */
+.roster {
+  container: roster / inline-size;
+}
+@container roster (max-width: 560px) {
   .player-list li {
     flex-wrap: wrap;
     padding: 8px 4px;
@@ -211,8 +215,16 @@ input[type='checkbox'] {
     margin-left: 26px;
   }
   .player-list select {
-    flex: 1 1 0;
+    flex: 1 1 110px;
   }
+}
+
+select.ban.set {
+  border-color: rgba(255, 59, 74, 0.6);
+  color: #ffb3ba;
+}
+select:disabled {
+  opacity: 0.4;
 }
 
 /* ---------- Star rating (half stars) ---------- */

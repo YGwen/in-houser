@@ -6,6 +6,7 @@ interface YamlPlayer {
   name: string;
   rank: number;
   role?: Role;
+  ban?: Role;
   playing?: boolean;
   say?: string;
 }
@@ -13,6 +14,7 @@ interface YamlPlayer {
 const HEADER = `# In-Houser players
 # rank: 1 (beginner) to 5 (best), half stars allowed (e.g. 2.5)
 # role: optional, locks a new player to top | jungle | mid | adc | support
+# ban: optional, a role this player never gets (top | jungle | mid | adc | support)
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
 `;
@@ -23,6 +25,7 @@ export function playersToYaml(players: Player[]): string {
       name: p.name,
       rank: p.rank,
       ...(p.fixedRole ? { role: p.fixedRole } : {}),
+      ...(p.bannedRole && !p.fixedRole ? { ban: p.bannedRole } : {}),
       playing: p.active,
       ...(p.say ? { say: p.say } : {}),
     })),
@@ -70,11 +73,19 @@ export function playersFromYaml(text: string): ImportResult {
     if (role !== null && !ROLES.includes(role as Role)) {
       return { ok: false, error: `${name}: role must be one of ${ROLES.join(', ')}.` };
     }
+    const ban = entry?.ban ?? null;
+    if (ban !== null && !ROLES.includes(ban as Role)) {
+      return { ok: false, error: `${name}: ban must be one of ${ROLES.join(', ')}.` };
+    }
+    if (ban !== null && ban === role) {
+      return { ok: false, error: `${name}: can't be locked to and banned from ${role}.` };
+    }
     players.push({
       id: playerId(name, players.map((p) => p.id)),
       name,
       rank,
       fixedRole: role as Role | null,
+      ...(ban !== null ? { bannedRole: ban as Role } : {}),
       active: entry?.playing === true,
       ...(typeof entry?.say === 'string' && entry.say.trim() ? { say: entry.say.trim() } : {}),
     });

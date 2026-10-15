@@ -27,6 +27,8 @@ export interface Player {
   rank: Rank;
   /** Set for new players who always play the same role; null = random role. */
   fixedRole: Role | null;
+  /** A role this player never gets (set in players.yaml as `ban:`). Ignored when fixedRole is set. */
+  bannedRole?: Role | null;
   /** Playing tonight. */
   active: boolean;
   /** Optional pronunciation for the announcer voice (set in players.yaml as `say:`). */

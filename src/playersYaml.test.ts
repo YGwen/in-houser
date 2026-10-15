@@ -32,6 +32,21 @@ describe('players YAML', () => {
     expect(second.ok && second.players.map((p) => p.id)).toEqual(['p:greg', 'p:greg#2']);
   });
 
+  it('reads and writes banned roles', () => {
+    const out = playersFromYaml('players:\n  - { name: A, rank: 3, ban: jungle }\n  - { name: B, rank: 3 }\n');
+    expect(out).toMatchObject({ ok: true, players: [{ bannedRole: 'jungle' }, {}] });
+    if (!out.ok) return;
+    expect(out.players[1].bannedRole).toBeUndefined();
+    expect(playersToYaml(out.players)).toContain('ban: jungle');
+    // A locked player's ban is meaningless and not written.
+    expect(playersToYaml([{ ...out.players[0], fixedRole: 'top' }])).not.toContain('ban: jungle');
+  });
+
+  it('rejects invalid bans', () => {
+    expect(playersFromYaml('players:\n  - { name: A, rank: 3, ban: carry }\n').ok).toBe(false);
+    expect(playersFromYaml('players:\n  - { name: A, rank: 3, role: mid, ban: mid }\n').ok).toBe(false);
+  });
+
   it('accepts half-star ranks', () => {
     const out = playersFromYaml('players:\n  - { name: Half, rank: 2.5 }\n  - { name: Top, rank: 4.5 }\n');
     expect(out).toMatchObject({ ok: true, players: [{ rank: 2.5 }, { rank: 4.5 }] });
