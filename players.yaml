@@ -9,22 +9,22 @@ players:
     role: support
     playing: true
   - name: Tsyuko
-    rank: 3
+    rank: 4
     playing: true
   - name: ToLLL
     rank: 5
     playing: true
   - name: DMZ
-    rank: 3
+    rank: 2
     playing: true
   - name: Greg
-    rank: 3
+    rank: 2
     playing: true
   - name: Zeult
-    rank: 4
+    rank: 5
     playing: true
   - name: Gorhok
-    rank: 1
+    rank: 2
     role: adc
     playing: true
   - name: Samy
@@ -37,35 +37,35 @@ players:
     rank: 2
     playing: true
   - name: Thogae
-    rank: 3
+    rank: 4
     playing: false
   - name: Nefer
-    rank: 3
+    rank: 4
     playing: false
   - name: Balwé
-    rank: 3
+    rank: 2
     playing: false
   - name: Dibs
-    rank: 3
+    rank: 4
     playing: false
   - name: Asha
     rank: 3
     playing: false
   - name: Alex
-    rank: 3
+    rank: 4
     playing: false
   - name: Neo
     rank: 2
     playing: false
   - name: Ely
-    rank: 2
+    rank: 3
     playing: false
   - name: Dydyre
-    rank: 2
+    rank: 3
     playing: false
   - name: Undee
     rank: 1
     playing: false
   - name: Diegz
-    rank: 3
+    rank: 4
     playing: false
