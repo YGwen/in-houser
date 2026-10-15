@@ -107,7 +107,7 @@ export default function App() {
               <span>
                 Variety <small>(allowed rank gap above the best split: {tolerance})</small>
               </span>
-              <input type="range" min={0} max={3} value={tolerance} onChange={(e) => setTolerance(Number(e.target.value))} />
+              <input type="range" min={0} max={3} step={0.5} value={tolerance} onChange={(e) => setTolerance(Number(e.target.value))} />
             </label>
             <button className="btn primary big" disabled={activeCount !== 10} onClick={() => roll(true)}>
               ⚔ Generate teams

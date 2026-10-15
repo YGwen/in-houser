@@ -32,7 +32,14 @@ describe('players YAML', () => {
     expect(second.ok && second.players.map((p) => p.id)).toEqual(['p:greg', 'p:greg#2']);
   });
 
+  it('accepts half-star ranks', () => {
+    const out = playersFromYaml('players:\n  - { name: Half, rank: 2.5 }\n  - { name: Top, rank: 4.5 }\n');
+    expect(out).toMatchObject({ ok: true, players: [{ rank: 2.5 }, { rank: 4.5 }] });
+  });
+
   it('rejects bad ranks, roles and syntax', () => {
+    expect(playersFromYaml('players:\n  - name: A\n    rank: 2.3\n').ok).toBe(false);
+    expect(playersFromYaml('players:\n  - name: A\n    rank: 0.5\n').ok).toBe(false);
     expect(playersFromYaml('players:\n  - name: A\n    rank: 7\n').ok).toBe(false);
     expect(playersFromYaml('players:\n  - name: A\n    rank: 3\n    role: carry\n').ok).toBe(false);
     expect(playersFromYaml('players:\n  - rank: 3\n').ok).toBe(false);

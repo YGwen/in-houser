@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { playerId, playersFromYaml, playersToYaml } from '../playersYaml';
-import { ROLES, ROLE_LABELS, type Player, type Rank, type Role } from '../types';
+import { RANKS, ROLES, ROLE_LABELS, formatStars, type Player, type Rank, type Role } from '../types';
 
 interface Props {
   players: Player[];
@@ -8,8 +8,6 @@ interface Props {
   /** Replace the roster with the repo's players.yaml (keeps "playing tonight" ticks). */
   onResetToRepo: () => void;
 }
-
-const RANK_OPTIONS: Rank[] = [1, 2, 3, 4, 5];
 
 function RoleSelect({ value, onChange }: { value: Role | null; onChange: (r: Role | null) => void }) {
   return (
@@ -30,10 +28,10 @@ function RoleSelect({ value, onChange }: { value: Role | null; onChange: (r: Rol
 
 function RankSelect({ value, onChange }: { value: Rank; onChange: (r: Rank) => void }) {
   return (
-    <select value={value} onChange={(e) => onChange(Number(e.target.value) as Rank)} title="Skill: 1 = beginner, 5 = best">
-      {RANK_OPTIONS.map((r) => (
+    <select value={value} onChange={(e) => onChange(Number(e.target.value))} title="Skill: 1 = beginner, 5 = best (half stars allowed)">
+      {RANKS.map((r) => (
         <option key={r} value={r}>
-          {'★'.repeat(r)}
+          {formatStars(r)}
         </option>
       ))}
     </select>
@@ -104,7 +102,7 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
       </form>
 
       {players.length === 0 ? (
-        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best). Lock a role for new players.</p>
+        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best), half stars allowed. Lock a role for new players.</p>
       ) : (
         <ul className="player-list">
           {players.map((p) => (

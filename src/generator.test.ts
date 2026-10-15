@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generate, validate, type Rng } from './generator';
 import { recentGames, toPlayedGame } from './history';
-import { ROLES, type Duel, type PlayedGame, type Player, type Rank, type Role, type TeamResult } from './types';
+import { RANKS as ALL_RANKS, ROLES, formatStars, type Duel, type PlayedGame, type Player, type Rank, type Role, type TeamResult } from './types';
 
 function seeded(seed: number): Rng {
   // mulberry32
@@ -113,6 +113,24 @@ describe('generate', () => {
     const players = makePlayers({ 4: { fixedRole: 'top' }, 5: { fixedRole: 'top' } });
     const out = generate({ players, duels: [duel(0, 1, 'top')], tolerance: 1, rng: seeded(1) });
     expect(out.ok).toBe(false);
+  });
+});
+
+describe('half stars', () => {
+  it('balances teams with half-star ranks', () => {
+    const halves = [5, 4.5, 4, 3.5, 3, 3, 2.5, 2, 1.5, 1]; // total 30 -> best gap 0
+    const players = makePlayers(Object.fromEntries(halves.map((rank, i) => [i, { rank }])));
+    for (let seed = 1; seed <= 30; seed++) {
+      const r = run(players, [], 0, seed);
+      expect(r.gap).toBe(0);
+      expect(r.blueTotal + r.redTotal).toBe(30);
+    }
+  });
+
+  it('formats half stars', () => {
+    expect(formatStars(1)).toBe('★');
+    expect(formatStars(3.5)).toBe('★★★½');
+    expect(ALL_RANKS).toEqual([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]);
   });
 });
 

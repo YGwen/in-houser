@@ -1,5 +1,5 @@
 # In-Houser players
-# rank: 1 (beginner) to 5 (best)
+# rank: 1 (beginner) to 5 (best), half stars allowed (e.g. 2.5)
 # role: optional, locks a new player to top | jungle | mid | adc | support
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)

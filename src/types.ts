@@ -10,12 +10,20 @@ export const ROLE_LABELS: Record<Role, string> = {
   support: 'Support',
 };
 
-export type Rank = 1 | 2 | 3 | 4 | 5;
+/** Skill from 1 (beginner) to 5 (best), in half-star steps: 1, 1.5, 2 … 5. */
+export type Rank = number;
+
+export const RANKS: Rank[] = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+
+export const isRank = (value: unknown): value is Rank => typeof value === 'number' && RANKS.includes(value);
+
+/** 3.5 -> "★★★½" */
+export const formatStars = (rank: Rank) => '★'.repeat(Math.floor(rank)) + (rank % 1 ? '½' : '');
 
 export interface Player {
   id: string;
   name: string;
-  /** 1 = weakest, 5 = strongest. */
+  /** 1 = weakest, 5 = strongest, half stars allowed. */
   rank: Rank;
   /** Set for new players who always play the same role; null = random role. */
   fixedRole: Role | null;

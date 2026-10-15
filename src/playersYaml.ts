@@ -1,5 +1,5 @@
 import { parse, stringify } from 'yaml';
-import { ROLES, type Player, type Rank, type Role } from './types';
+import { ROLES, isRank, type Player, type Role } from './types';
 
 /** Shape of one player in players.yaml. `role` is only written for players locked to a role. */
 interface YamlPlayer {
@@ -11,7 +11,7 @@ interface YamlPlayer {
 }
 
 const HEADER = `# In-Houser players
-# rank: 1 (beginner) to 5 (best)
+# rank: 1 (beginner) to 5 (best), half stars allowed (e.g. 2.5)
 # role: optional, locks a new player to top | jungle | mid | adc | support
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
@@ -63,8 +63,8 @@ export function playersFromYaml(text: string): ImportResult {
     const name = typeof entry?.name === 'string' || typeof entry?.name === 'number' ? String(entry.name).trim() : '';
     if (!name) return { ok: false, error: `${where}: missing name.` };
     const rank = entry?.rank;
-    if (typeof rank !== 'number' || !Number.isInteger(rank) || rank < 1 || rank > 5) {
-      return { ok: false, error: `${name}: rank must be a whole number from 1 to 5.` };
+    if (!isRank(rank)) {
+      return { ok: false, error: `${name}: rank must be from 1 to 5 in half-star steps (1, 1.5, 2 … 5).` };
     }
     const role = entry?.role ?? null;
     if (role !== null && !ROLES.includes(role as Role)) {
@@ -73,7 +73,7 @@ export function playersFromYaml(text: string): ImportResult {
     players.push({
       id: playerId(name, players.map((p) => p.id)),
       name,
-      rank: rank as Rank,
+      rank,
       fixedRole: role as Role | null,
       active: entry?.playing === true,
       ...(typeof entry?.say === 'string' && entry.say.trim() ? { say: entry.say.trim() } : {}),
