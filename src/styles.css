@@ -207,13 +207,45 @@ input[type='checkbox'] {
   .player-list .name {
     flex-basis: calc(100% - 80px);
   }
-  .player-list select {
-    flex: 1 1 0;
+  .player-list .star-rating {
     margin-left: 26px;
   }
-  .player-list select + select {
-    margin-left: 0;
+  .player-list select {
+    flex: 1 1 0;
   }
+}
+
+/* ---------- Star rating (half stars) ---------- */
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.star-rating:focus-visible {
+  outline: 2px solid var(--gold);
+}
+.star {
+  position: relative;
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 1px;
+}
+.star-empty {
+  color: #3a4566;
+}
+.star-fill {
+  position: absolute;
+  left: 1px;
+  top: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--gold-bright);
+  text-shadow: 0 0 6px rgba(240, 212, 138, 0.35);
 }
 
 .row-actions {

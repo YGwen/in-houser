@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { playerId, playersFromYaml, playersToYaml } from '../playersYaml';
-import { RANKS, ROLES, ROLE_LABELS, formatStars, type Player, type Rank, type Role } from '../types';
+import { ROLES, ROLE_LABELS, type Player, type Rank, type Role } from '../types';
+import StarRating from './StarRating';
 
 interface Props {
   players: Player[];
@@ -20,18 +21,6 @@ function RoleSelect({ value, onChange }: { value: Role | null; onChange: (r: Rol
       {ROLES.map((r) => (
         <option key={r} value={r}>
           🔒 {ROLE_LABELS[r]}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function RankSelect({ value, onChange }: { value: Rank; onChange: (r: Rank) => void }) {
-  return (
-    <select value={value} onChange={(e) => onChange(Number(e.target.value))} title="Skill: 1 = beginner, 5 = best (half stars allowed)">
-      {RANKS.map((r) => (
-        <option key={r} value={r}>
-          {formatStars(r)}
         </option>
       ))}
     </select>
@@ -94,7 +83,7 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
 
       <form className="add-player" onSubmit={add}>
         <input placeholder="Summoner name" value={name} onChange={(e) => setName(e.target.value)} maxLength={24} />
-        <RankSelect value={rank} onChange={setRank} />
+        <StarRating value={rank} onChange={setRank} />
         <RoleSelect value={fixedRole} onChange={setFixedRole} />
         <button className="btn primary" type="submit" disabled={!name.trim()}>
           Add
@@ -114,7 +103,7 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
                 title="Playing tonight"
               />
               <input className="name" value={p.name} onChange={(e) => update(p.id, { name: e.target.value })} maxLength={24} />
-              <RankSelect value={p.rank} onChange={(r) => update(p.id, { rank: r })} />
+              <StarRating value={p.rank} onChange={(r) => update(p.id, { rank: r })} />
               <RoleSelect value={p.fixedRole} onChange={(r) => update(p.id, { fixedRole: r })} />
               <button className="btn icon" onClick={() => onChange(players.filter((x) => x.id !== p.id))} title="Remove player">
                 ✕
