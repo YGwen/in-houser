@@ -5,67 +5,64 @@
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
 players:
   - name: Maas
-    rank: 1
+    rank: 1.5
     role: support
     playing: true
   - name: Tsyuko
-    rank: 4
+    rank: 3.5
     playing: true
   - name: ToLLL
     rank: 5
     playing: true
   - name: DMZ
-    rank: 2
+    rank: 3
     playing: true
   - name: Greg
-    rank: 2
+    rank: 3
     playing: true
   - name: Zeult
-    rank: 5
+    rank: 4.5
     playing: true
   - name: Gorhok
-    rank: 2
+    rank: 2.5
     role: adc
     playing: true
   - name: Samy
-    rank: 3
+    rank: 3.5
     playing: true
   - name: Azod
     rank: 3
     playing: true
   - name: Momo
-    rank: 2
+    rank: 2.5
     playing: true
   - name: Thogae
-    rank: 4
+    rank: 3.5
     playing: false
   - name: Nefer
-    rank: 4
+    rank: 3.5
     playing: false
   - name: Balwé
-    rank: 2
+    rank: 2.5
     playing: false
   - name: Dibs
-    rank: 4
+    rank: 3.5
     playing: false
   - name: Asha
     rank: 3
     playing: false
   - name: Alex
-    rank: 4
+    rank: 3.5
     playing: false
   - name: Neo
     rank: 2
     playing: false
   - name: Ely
-    rank: 3
+    rank: 2.5
     playing: false
   - name: Dydyre
     rank: 3
     playing: false
-  - name: Undee
-    rank: 1
-    playing: false
   - name: Diegz
-    rank: 4
+    rank: 3.5
     playing: false
