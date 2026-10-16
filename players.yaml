@@ -1,11 +1,12 @@
 # In-Houser players
 # rank: 1 (beginner) to 5 (best), half stars allowed (e.g. 2.5)
 # role: optional, locks a new player to top | jungle | mid | adc | support
+# ban: optional, a role this player never gets (top | jungle | mid | adc | support)
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
 players:
   - name: Maas
-    rank: 1.5
+    rank: 1
     role: support
     playing: true
   - name: Tsyuko
@@ -15,7 +16,7 @@ players:
     rank: 5
     playing: true
   - name: DMZ
-    rank: 3
+    rank: 2.5
     playing: true
   - name: Greg
     rank: 3
@@ -24,17 +25,17 @@ players:
     rank: 4.5
     playing: true
   - name: Gorhok
-    rank: 2.5
+    rank: 2
     role: adc
     playing: true
   - name: Samy
-    rank: 3.5
+    rank: 3
     playing: true
   - name: Azod
     rank: 3
     playing: true
   - name: Momo
-    rank: 2.5
+    rank: 2
     playing: true
   - name: Thogae
     rank: 3.5
@@ -43,7 +44,7 @@ players:
     rank: 3.5
     playing: false
   - name: Balwé
-    rank: 2.5
+    rank: 2
     playing: false
   - name: Dibs
     rank: 3.5
@@ -55,7 +56,7 @@ players:
     rank: 3.5
     playing: false
   - name: Neo
-    rank: 2
+    rank: 2.5
     playing: false
   - name: Ely
     rank: 2.5
