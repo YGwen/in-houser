@@ -2,7 +2,7 @@
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
 import { startMusic, stopMusic } from '../audio/chiptune';
 import { duelSting, fightJingle, vsHit } from '../audio/sfx';
-import { fireRandomWeapon } from '../audio/weapons';
+import { fireRandomWeapon, preloadWeapons } from '../audio/weapons';
 import { ROLES, type Role, type TeamResult } from '../types';
 
 interface Props {
@@ -72,6 +72,7 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
 
   useEffect(() => {
     startMusic();
+    preloadWeapons();
     preloadVoice([
       VERSUS,
       DUEL,
