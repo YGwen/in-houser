@@ -49,11 +49,41 @@ export function fireRandomWeapon() {
   fireWeapon(weapon);
 }
 
+/** Drive into the saturator (3 = +9.5 dB before soft clipping). */
+export const GUN_DRIVE = 3;
+/** The app's master volume (see engine.ts). Gunshots compensate for it so they can reach full scale. */
+const MASTER_LEVEL = 0.6;
+
+let gunBus: AudioNode | null = null;
+
+/**
+ * Gunshots are one sharp peak followed by a quieter body, so plain volume clips before they sound loud.
+ * Drive them into a smooth tanh saturator (rounds off only the tip of the blast, like game audio does),
+ * then scale the result so that, after the master volume, the loudest shot just reaches full scale.
+ */
+export function buildGunChain(ctx: BaseAudioContext, dest: AudioNode): AudioNode {
+  const drive = ctx.createGain();
+  drive.gain.value = GUN_DRIVE;
+  const saturator = ctx.createWaveShaper();
+  const curve = new Float32Array(2048);
+  for (let i = 0; i < curve.length; i++) curve[i] = Math.tanh(((i / (curve.length - 1)) * 2 - 1) * 4) / Math.tanh(4);
+  // The curve covers inputs -4..4 mapped to -1..1; inputs are pre-scaled by 1/4 so tanh sees the true level.
+  const toCurve = ctx.createGain();
+  toCurve.gain.value = 1 / 4;
+  saturator.curve = curve;
+  saturator.oversample = '4x';
+  const ceiling = ctx.createGain();
+  ceiling.gain.value = (0.88 / MASTER_LEVEL) * Math.tanh(4); // undo the curve's normalisation, then fill the headroom
+  drive.connect(toCurve).connect(saturator).connect(ceiling).connect(dest);
+  return drive;
+}
+
 function play(buffer: AudioBuffer) {
-  const { ctx, sfxBus } = audio();
+  const { ctx, master } = audio();
+  gunBus ??= buildGunChain(ctx, master);
   const src = ctx.createBufferSource();
   src.buffer = buffer;
-  src.connect(sfxBus);
+  src.connect(gunBus);
   src.start();
   // Near-silence the chiptune for the whole shot so its 8-bit beat doesn't color the recording.
   duckMusic(buffer.duration, 0.05);
