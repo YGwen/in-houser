@@ -30,8 +30,8 @@
     "neo": "names/neo-66b928.wav",
     "ely": "names/ely-2ac015.wav",
     "dydyre": "names/dydyre-58f008.wav",
-    "undee": "names/undee-3aac42.wav",
-    "diegz": "names/diegz-b99bf6.wav"
+    "diegz": "names/diegz-b99bf6.wav",
+    "shanou": "names/shanou-836082.wav"
   },
   "texts": {
     "lines/top.wav": "Top lane!",
@@ -61,7 +61,7 @@
     "names/neo-66b928.wav": "Neo!",
     "names/ely-2ac015.wav": "Ely!",
     "names/dydyre-58f008.wav": "Dydyre!",
-    "names/undee-3aac42.wav": "Undee!",
-    "names/diegz-b99bf6.wav": "Diegz!"
+    "names/diegz-b99bf6.wav": "Diegz!",
+    "names/shanou-836082.wav": "Shanou!"
   }
 }
