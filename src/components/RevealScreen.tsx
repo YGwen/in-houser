@@ -1,8 +1,9 @@
 ﻿import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
 import { startMusic, stopMusic } from '../audio/chiptune';
-import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
-import { ROLES, type Player, type Role, type TeamResult } from '../types';
+import { duelSting, fightJingle, vsHit } from '../audio/sfx';
+import { fireRandomWeapon } from '../audio/weapons';
+import { ROLES, type Role, type TeamResult } from '../types';
 
 interface Props {
   result: TeamResult;
@@ -29,22 +30,14 @@ const SPOKEN_LANES: Record<Role, string> = {
   support: 'Bot lane. Support!',
 };
 
-/** Make summoner names sayable: drop Riot tags (#EUW) and read separators as pauses, not "underscore". */
-function spokenName(player: Player) {
-  if (player.say) return `${player.say}!`;
-  const clean = player.name.split('#')[0].replace(/[_\-.|~*]+/g, ' ').trim();
-  return `${clean || player.name}!`;
-}
-
 const laneLine = (role: Role): Line => ({ text: SPOKEN_LANES[role], style: 'call', clip: { line: role } });
-const nameLine = (player: Player): Line => ({ text: spokenName(player), style: 'name', clip: { name: player.name } });
 const VERSUS: Line = { text: 'versus!', style: 'call', clip: { line: 'versus' } };
 const DUEL: Line = { text: 'Duel!', style: 'hype', clip: { line: 'duel' } };
 const FIGHT: Line = { text: 'Fight!', style: 'hype', clip: { line: 'fight' } };
 
 // Reveal sequence for one lane, in seconds: lane title, then blue player, then the VS slam, then red player.
 // Passed to CSS as variables so animations and sounds stay in sync.
-// Spaced so the announcer ("<lane>!", "<name>!", "versus!", "<name>!") keeps up with the visuals.
+// Spaced so the announcer ("<lane>!", "versus!") and the entrance gunshots keep up with the visuals.
 const T_TITLE = 0;
 const T_BLUE = 0.9;
 const T_VS = 1.7;
@@ -83,7 +76,7 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       VERSUS,
       DUEL,
       FIGHT,
-      ...ROLES.flatMap((r) => [laneLine(r), nameLine(result.blue[r]), nameLine(result.red[r])]),
+      ...ROLES.map(laneLine),
     ]);
     return () => stopMusic();
   }, [result]);
@@ -111,12 +104,11 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       const o = isDuel ? DUEL_OFFSET : 0;
       timers = [
         at(o + T_TITLE + 0.1, () => void announce(laneLine(role))),
-        at(o + T_BLUE, whoosh),
-        at(o + T_BLUE + 0.1, () => void announce(nameLine(result.blue[role]))),
+        // Each player's entrance is a gunshot from a random weapon instead of their spoken name.
+        at(o + T_BLUE + 0.05, fireRandomWeapon),
         at(o + T_VS + SLAM, vsHit),
         at(o + T_VS + SLAM + 0.05, () => void announce(VERSUS)),
-        at(o + T_RED, whoosh),
-        at(o + T_RED + 0.1, () => void announce(nameLine(result.red[role]))),
+        at(o + T_RED + 0.05, fireRandomWeapon),
         advanceAfter(o + T_RED + HOLD_AFTER_RED),
       ];
       if (isDuel) timers.push(at(0.15, duelSting), at(0.3, () => void announce(DUEL)));
