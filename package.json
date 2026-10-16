@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "voice": "node scripts/generate-voice.mjs",
-    "champions": "node scripts/update-champions.mjs"
+    "champions": "node scripts/update-champions.mjs",
+    "score-replays": "node scripts/score-replays.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
