@@ -74,11 +74,11 @@ export function stopMusic(fadeSeconds = 0.6) {
 }
 
 /** Lower the music briefly so a sound effect stands out. */
-export function duckMusic(seconds: number) {
+export function duckMusic(seconds: number, level = 0.2) {
   if (!busGain) return;
   const { ctx } = audio();
   const g = busGain.gain;
   g.cancelScheduledValues(ctx.currentTime);
-  g.setTargetAtTime(0.2, ctx.currentTime, 0.03);
+  g.setTargetAtTime(level, ctx.currentTime, level < 0.1 ? 0.005 : 0.03);
   g.setTargetAtTime(1, ctx.currentTime + seconds, 0.2);
 }

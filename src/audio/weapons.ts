@@ -1,17 +1,16 @@
 import { duckMusic } from './chiptune';
-import { audio, noise, tone } from './engine';
+import { audio } from './engine';
 
 // Gunshots for the reveal: each player's entrance is marked by a random weapon.
-// Real recordings from The Free Firearm Sound Library (CC0, see public/sfx/guns/CREDITS.md),
-// trimmed to public/sfx/guns/<weapon>.wav. Until a clip has loaded, a synthesized version
-// (filtered noise for the blast and echo, a falling sine for the thump) plays instead.
+// Real stereo recordings from The Free Firearm Sound Library (CC0, see public/sfx/guns/CREDITS.md),
+// trimmed to public/sfx/guns/<weapon>.wav. Only recordings are played, never synthesized shots.
 
 export type Weapon = 'pistol' | 'revolver' | 'shotgun' | 'sniper' | 'smg';
 
 export const WEAPONS: Weapon[] = ['pistol', 'revolver', 'shotgun', 'sniper', 'smg'];
 
 const clips = new Map<Weapon, Promise<AudioBuffer | null>>();
-/** Clips that finished decoding, so a shot can start synchronously on its animation frame. */
+/** Clips that finished decoding, so a shot can start on its exact animation frame. */
 const loaded = new Map<Weapon, AudioBuffer>();
 
 function loadClip(weapon: Weapon): Promise<AudioBuffer | null> {
@@ -20,6 +19,10 @@ function loadClip(weapon: Weapon): Promise<AudioBuffer | null> {
     clip = fetch(`${import.meta.env.BASE_URL}sfx/guns/${weapon}.wav`)
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.statusText))))
       .then((data) => audio().ctx.decodeAudioData(data))
+      .then((buffer) => {
+        loaded.set(weapon, buffer);
+        return buffer;
+      })
       .catch(() => null);
     clips.set(weapon, clip);
   }
@@ -28,66 +31,8 @@ function loadClip(weapon: Weapon): Promise<AudioBuffer | null> {
 
 /** Fetch and decode all weapon clips ahead of the first shot. */
 export function preloadWeapons() {
-  WEAPONS.forEach((w) => void loadClip(w).then((b) => b && loaded.set(w, b)));
+  WEAPONS.forEach((w) => void loadClip(w));
 }
-
-/** One shot: sharp crack, low thump, and a short room echo. */
-function shot(dest: AudioNode, t: number, power: number, crackFreq: number) {
-  noise(dest, t, 0.03, 1.1 * power, { type: 'highpass', freq: crackFreq });
-  noise(dest, t, 0.22, 0.9 * power, { type: 'lowpass', freq: 4500, endFreq: 300 });
-  tone(dest, 'sine', 160, t, 0.16, 0.9 * power, 45);
-}
-
-const PLAY: Record<Weapon, (dest: AudioNode, t: number) => number> = {
-  pistol(dest, t) {
-    shot(dest, t, 0.9, 2500);
-    noise(dest, t + 0.06, 0.4, 0.12, { type: 'lowpass', freq: 1200, endFreq: 400 });
-    return 0.5;
-  },
-
-  revolver(dest, t) {
-    // Hammer cock, then a heavier shot with a long ring.
-    tone(dest, 'square', 3200, t, 0.012, 0.15);
-    tone(dest, 'square', 2400, t + 0.07, 0.012, 0.15);
-    shot(dest, t + 0.22, 1.1, 2000);
-    tone(dest, 'sine', 95, t + 0.22, 0.35, 0.6, 35);
-    noise(dest, t + 0.3, 0.7, 0.18, { type: 'lowpass', freq: 900, endFreq: 250 });
-    return 1;
-  },
-
-  shotgun(dest, t) {
-    // Pump (back, forward), then a wide, bassy blast.
-    noise(dest, t, 0.06, 0.45, { type: 'bandpass', freq: 1800 });
-    noise(dest, t + 0.13, 0.05, 0.5, { type: 'bandpass', freq: 2400 });
-    const b = t + 0.38;
-    noise(dest, b, 0.5, 1.3, { type: 'lowpass', freq: 6000, endFreq: 180 });
-    tone(dest, 'sine', 110, b, 0.45, 1.1, 30);
-    noise(dest, b + 0.1, 0.8, 0.2, { type: 'lowpass', freq: 700, endFreq: 200 });
-    return 1.3;
-  },
-
-  sniper(dest, t) {
-    // Supersonic crack, deep boom, then echoes rolling off distant walls.
-    noise(dest, t, 0.04, 1.4, { type: 'highpass', freq: 3500 });
-    tone(dest, 'sine', 70, t, 0.7, 1.1, 28);
-    noise(dest, t, 0.35, 0.8, { type: 'lowpass', freq: 3000, endFreq: 150 });
-    noise(dest, t + 0.25, 0.9, 0.22, { type: 'lowpass', freq: 800, endFreq: 200 });
-    noise(dest, t + 0.65, 0.9, 0.1, { type: 'lowpass', freq: 600, endFreq: 150 });
-    return 1.6;
-  },
-
-  smg(dest, t) {
-    // Five-round burst.
-    for (let i = 0; i < 5; i++) {
-      const s = t + i * 0.075;
-      noise(dest, s, 0.07, 0.75, { type: 'bandpass', freq: 2200 });
-      noise(dest, s, 0.09, 0.5, { type: 'lowpass', freq: 3000, endFreq: 500 });
-      tone(dest, 'sine', 210, s, 0.06, 0.45, 80);
-    }
-    noise(dest, t + 0.38, 0.5, 0.14, { type: 'lowpass', freq: 1000, endFreq: 300 });
-    return 0.9;
-  },
-};
 
 let last: Weapon | null = null;
 
@@ -97,27 +42,26 @@ export function pickWeapon(rng: () => number = Math.random, previous: Weapon | n
   return options[Math.floor(rng() * options.length)];
 }
 
-/** Fire a random weapon now; returns how long it rings (seconds). */
-export function fireRandomWeapon(): number {
+/** Fire a random weapon. */
+export function fireRandomWeapon() {
   const weapon = pickWeapon();
   last = weapon;
-  return fireWeapon(weapon);
+  fireWeapon(weapon);
 }
 
-export function fireWeapon(weapon: Weapon): number {
+function play(buffer: AudioBuffer) {
   const { ctx, sfxBus } = audio();
-  void loadClip(weapon).then((b) => b && loaded.set(weapon, b));
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  src.connect(sfxBus);
+  src.start();
+  // Near-silence the chiptune for the whole shot so its 8-bit beat doesn't color the recording.
+  duckMusic(buffer.duration, 0.05);
+}
+
+/** Play a weapon's recording now, or as soon as it has loaded (silent if it can't be loaded). */
+export function fireWeapon(weapon: Weapon) {
   const buffer = loaded.get(weapon);
-  let seconds: number;
-  if (buffer) {
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    src.connect(sfxBus);
-    src.start();
-    seconds = buffer.duration;
-  } else {
-    seconds = PLAY[weapon](sfxBus, ctx.currentTime + 0.01); // clip not loaded yet
-  }
-  duckMusic(seconds);
-  return seconds;
+  if (buffer) play(buffer);
+  else void loadClip(weapon).then((b) => b && play(b));
 }

@@ -4,7 +4,7 @@ Recordings from **The Free Firearm Sound Library** by Ben Jaszczak, Brian Nelson
 Matthew Nanney, released under **CC0** (no rights reserved; credit not required, but given with thanks):
 https://opengameart.org/content/the-free-firearm-sound-library
 
-Trimmed to the shot and its echo, mixed to mono and resampled to 32 kHz:
+Trimmed to the shot and its echo, kept in stereo and resampled to 48 kHz (16-bit):
 
 | Clip | Source file | Firearm |
 |---|---|---|
