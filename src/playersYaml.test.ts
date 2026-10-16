@@ -47,6 +47,14 @@ describe('players YAML', () => {
     expect(playersFromYaml('players:\n  - { name: A, rank: 3, role: mid, ban: mid }\n').ok).toBe(false);
   });
 
+  it('reads and writes the player style description', () => {
+    const out = playersFromYaml('players:\n  - { name: A, rank: 3, style: "Split-pusher: loves Jax." }\n');
+    expect(out).toMatchObject({ ok: true, players: [{ style: 'Split-pusher: loves Jax.' }] });
+    if (!out.ok) return;
+    const again = playersFromYaml(playersToYaml(out.players));
+    expect(again).toMatchObject({ ok: true, players: [{ style: 'Split-pusher: loves Jax.' }] });
+  });
+
   it('accepts half-star ranks', () => {
     const out = playersFromYaml('players:\n  - { name: Half, rank: 2.5 }\n  - { name: Top, rank: 4.5 }\n');
     expect(out).toMatchObject({ ok: true, players: [{ rank: 2.5 }, { rank: 4.5 }] });

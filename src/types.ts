@@ -35,6 +35,8 @@ export interface Player {
   active: boolean;
   /** Optional pronunciation for the announcer voice (set in players.yaml as `say:`). */
   say?: string;
+  /** Short description of how this player plays, shown on hover (players.yaml: `style:`). */
+  style?: string;
 }
 
 export interface Duel {
