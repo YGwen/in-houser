@@ -29,6 +29,8 @@ export interface Player {
   fixedRole: Role | null;
   /** A role this player never gets (set in players.yaml as `ban:`). Ignored when fixedRole is set. */
   bannedRole?: Role | null;
+  /** Wants a random champion that fits their assigned role (players.yaml: `random_champion: true`). */
+  randomChampion?: boolean;
   /** Playing tonight. */
   active: boolean;
   /** Optional pronunciation for the announcer voice (set in players.yaml as `say:`). */
@@ -61,4 +63,6 @@ export interface TeamResult {
   gap: number;
   /** Lanes where a duel takes place. */
   duelLanes: Role[];
+  /** Random champion (Data Dragon id) per player id, for players who asked for one. */
+  champions?: Record<string, string>;
 }

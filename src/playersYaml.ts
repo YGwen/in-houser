@@ -7,6 +7,7 @@ interface YamlPlayer {
   rank: number;
   role?: Role;
   ban?: Role;
+  random_champion?: boolean;
   playing?: boolean;
   say?: string;
 }
@@ -15,6 +16,7 @@ const HEADER = `# In-Houser players
 # rank: 1 (beginner) to 5 (best), half stars allowed (e.g. 2.5)
 # role: optional, locks a new player to top | jungle | mid | adc | support
 # ban: optional, a role this player never gets (top | jungle | mid | adc | support)
+# random_champion: optional, true = gets a random champion that fits their role
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
 `;
@@ -26,6 +28,7 @@ export function playersToYaml(players: Player[]): string {
       rank: p.rank,
       ...(p.fixedRole ? { role: p.fixedRole } : {}),
       ...(p.bannedRole && !p.fixedRole ? { ban: p.bannedRole } : {}),
+      ...(p.randomChampion ? { random_champion: true } : {}),
       playing: p.active,
       ...(p.say ? { say: p.say } : {}),
     })),
@@ -86,6 +89,7 @@ export function playersFromYaml(text: string): ImportResult {
       rank,
       fixedRole: role as Role | null,
       ...(ban !== null ? { bannedRole: ban as Role } : {}),
+      ...(entry?.random_champion === true ? { randomChampion: true } : {}),
       active: entry?.playing === true,
       ...(typeof entry?.say === 'string' && entry.say.trim() ? { say: entry.say.trim() } : {}),
     });

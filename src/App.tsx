@@ -6,6 +6,7 @@ import HistoryPanel from './components/HistoryPanel';
 import RevealScreen from './components/RevealScreen';
 import RosterPanel from './components/RosterPanel';
 import TeamsView from './components/TeamsView';
+import { pickChampions } from './champions';
 import { generate } from './generator';
 import { EVENING_MS, toPlayedGame } from './history';
 import { REPO_ROSTER_VERSION, mergeRepoRoster, repoRoster } from './roster';
@@ -62,7 +63,7 @@ export default function App() {
       return;
     }
     setErrors([]);
-    setResult(out.result);
+    setResult({ ...out.result, champions: pickChampions(out.result) });
     setRecordedAs(null);
     if (withReveal) {
       audio(); // unlock audio inside the click handler
@@ -131,6 +132,7 @@ export default function App() {
           onRecord={recordGame}
           onReroll={() => roll(true)}
           onQuickReroll={() => roll(false)}
+          onRerollChampions={() => setResult((r) => r && { ...r, champions: pickChampions(r) })}
           onReplay={() => {
             audio();
             setRevealing(true);

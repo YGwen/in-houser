@@ -3,6 +3,7 @@ import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from 
 import { startMusic, stopMusic } from '../audio/music';
 import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, type Player, type Role, type TeamResult } from '../types';
+import ChampionTag from './ChampionTag';
 
 interface Props {
   result: TeamResult;
@@ -162,11 +163,13 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
             <div className="fighter blue">
               <span className="side">BLUE SIDE</span>
               <span className="name">{result.blue[role].name}</span>
+              <ChampionTag id={result.champions?.[result.blue[role].id]} large />
             </div>
             <div className="vs">VS</div>
             <div className="fighter red">
               <span className="side">RED SIDE</span>
               <span className="name">{result.red[role].name}</span>
+              <ChampionTag id={result.champions?.[result.red[role].id]} large />
             </div>
           </div>
         </div>

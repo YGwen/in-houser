@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { ROLES, ROLE_LABELS, type TeamResult } from '../types';
+import { championById } from '../champions';
+import { ROLES, ROLE_LABELS, type Player, type TeamResult } from '../types';
+import ChampionTag from './ChampionTag';
 
 interface Props {
   result: TeamResult;
@@ -8,19 +10,25 @@ interface Props {
   onRecord: () => void;
   onReroll: () => void;
   onQuickReroll: () => void;
+  onRerollChampions: () => void;
   onReplay: () => void;
 }
 
 function asText(r: TeamResult) {
   const lines = [`🔵 BLUE (${r.blueTotal}★)  vs  🔴 RED (${r.redTotal}★)`];
+  const who = (p: Player) => {
+    const champ = championById(r.champions?.[p.id] ?? '');
+    return champ ? `${p.name} (${champ.name})` : p.name;
+  };
   for (const role of ROLES) {
     const duel = r.duelLanes.includes(role) ? '  ⚔ DUEL' : '';
-    lines.push(`${ROLE_LABELS[role].toUpperCase()}: ${r.blue[role].name} vs ${r.red[role].name}${duel}`);
+    lines.push(`${ROLE_LABELS[role].toUpperCase()}: ${who(r.blue[role])} vs ${who(r.red[role])}${duel}`);
   }
   return lines.join('\n');
 }
 
-export default function TeamsView({ result, recordedAs, onRecord, onReroll, onQuickReroll, onReplay }: Props) {
+export default function TeamsView({ result, recordedAs, onRecord, onReroll, onQuickReroll, onRerollChampions, onReplay }: Props) {
+  const hasChampions = Object.keys(result.champions ?? {}).length > 0;
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -50,12 +58,18 @@ export default function TeamsView({ result, recordedAs, onRecord, onReroll, onQu
           const duel = result.duelLanes.includes(role);
           return (
             <li key={role} className={duel ? 'duel' : ''}>
-              <span className="p blue">{result.blue[role].name}</span>
+              <span className="p blue">
+                {result.blue[role].name}
+                <ChampionTag id={result.champions?.[result.blue[role].id]} />
+              </span>
               <span className="lane">
                 {duel && '⚔ '}
                 {ROLE_LABELS[role]}
               </span>
-              <span className="p red">{result.red[role].name}</span>
+              <span className="p red">
+                {result.red[role].name}
+                <ChampionTag id={result.champions?.[result.red[role].id]} />
+              </span>
             </li>
           );
         })}
@@ -76,6 +90,11 @@ export default function TeamsView({ result, recordedAs, onRecord, onReroll, onQu
         <button className="btn" onClick={onQuickReroll}>
           Quick reroll (no reveal)
         </button>
+        {hasChampions && (
+          <button className="btn" onClick={onRerollChampions} title="New random champions, same teams">
+            🎲 Reroll champions
+          </button>
+        )}
         <button className="btn" onClick={onReplay}>
           ▶ Replay reveal
         </button>

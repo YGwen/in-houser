@@ -7,9 +7,18 @@ Balanced 5v5 team generator for League of Legends in-house games between friends
 - Duels: two players who accept a challenge face each other in the same lane on opposite teams (one game only).
 - Role rotation: games you play ("✓ We play this") are remembered for the evening, so people don't get the same role or teammates again.
 - Import/export the roster as `players.yaml`.
-- VS reveal with chiptune music, sound effects and a voice announcer.
+- VS reveal with 16-bit music, sound effects and a voice announcer.
+- Optional random champion per player, fitting their role.
 
 Everything runs in the browser (data is saved in localStorage); no backend.
+
+## Random champions
+
+Players with 🎲 on (or `random_champion: true` in `players.yaml`) get a random champion that fits the
+role they were given, never the same champion twice in a game. "Reroll champions" re-picks without changing
+the teams. The champion list (`src/data/champions.json`) is refreshed with `npm run champions`: lanes come
+from the positions Riot's client recommends, via the [League of Legends Wiki](https://wiki.leagueoflegends.com/)
+(CC BY-SA); names and portraits from Riot's Data Dragon.
 
 ## Run it
 
@@ -55,3 +64,9 @@ npm run voice
 Only missing or changed clips are generated, so voices you already like stay the same
 (`npm run voice -- --all` regenerates everything).
 Add `say: "..."` to a player in `players.yaml` to fix how their name is pronounced.
+
+---
+
+In-Houser isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone
+officially involved in producing or managing Riot Games properties. Riot Games, and all associated
+properties are trademarks or registered trademarks of Riot Games, Inc.

@@ -114,7 +114,7 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
       </form>
 
       {players.length === 0 ? (
-        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best), half stars allowed. Lock a role for new players, or ban a role someone never wants.</p>
+        <p className="hint">Add your friends. Rank them from ★ (beginner) to ★★★★★ (best), half stars allowed. Lock a role for new players, or ban a role someone never wants. 🎲 gives a player a random champion for their role.</p>
       ) : (
         <ul className="player-list">
           {players.map((p) => (
@@ -133,6 +133,14 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
                 disabled={!!p.fixedRole}
                 onChange={(r) => update(p.id, { bannedRole: r })}
               />
+              <button
+                className={`btn icon champ-toggle ${p.randomChampion ? 'on' : ''}`}
+                onClick={() => update(p.id, { randomChampion: !p.randomChampion })}
+                aria-pressed={!!p.randomChampion}
+                title={p.randomChampion ? 'Gets a random champion for their role (click to turn off)' : 'Give this player a random champion for their role'}
+              >
+                🎲
+              </button>
               <button className="btn icon" onClick={() => onChange(players.filter((x) => x.id !== p.id))} title="Remove player">
                 ✕
               </button>

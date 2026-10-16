@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "voice": "node scripts/generate-voice.mjs"
+    "voice": "node scripts/generate-voice.mjs",
+    "champions": "node scripts/update-champions.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
