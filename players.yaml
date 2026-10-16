@@ -68,3 +68,6 @@ players:
   - name: Diegz
     rank: 3.5
     playing: false
+  - name: Shanou
+    rank: 2.5
+    playing: false
