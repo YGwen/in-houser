@@ -30,10 +30,10 @@ players:
     role: adc
     playing: true
   - name: Samy
-    rank: 4
+    rank: 3.5
     playing: true
   - name: Azod
-    rank: 2.5
+    rank: 2
     playing: true
   - name: Momo
     rank: 2.5
@@ -45,7 +45,7 @@ players:
     rank: 3.5
     playing: false
   - name: Balwé
-    rank: 4
+    rank: 3.5
     playing: false
   - name: Dibs
     rank: 3.5
