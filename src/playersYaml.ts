@@ -10,6 +10,7 @@ interface YamlPlayer {
   random_champion?: boolean;
   playing?: boolean;
   say?: string;
+  style?: string;
 }
 
 const HEADER = `# In-Houser players
@@ -19,6 +20,7 @@ const HEADER = `# In-Houser players
 # random_champion: optional, true = gets a random champion that fits their role
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
+# style: optional, a short description of how the player plays (shown when hovering the player)
 `;
 
 export function playersToYaml(players: Player[]): string {
@@ -31,6 +33,7 @@ export function playersToYaml(players: Player[]): string {
       ...(p.randomChampion ? { random_champion: true } : {}),
       playing: p.active,
       ...(p.say ? { say: p.say } : {}),
+      ...(p.style ? { style: p.style } : {}),
     })),
   };
   return HEADER + stringify(doc);
@@ -92,6 +95,7 @@ export function playersFromYaml(text: string): ImportResult {
       ...(entry?.random_champion === true ? { randomChampion: true } : {}),
       active: entry?.playing === true,
       ...(typeof entry?.say === 'string' && entry.say.trim() ? { say: entry.say.trim() } : {}),
+      ...(typeof entry?.style === 'string' && entry.style.trim() ? { style: entry.style.trim() } : {}),
     });
   }
   return { ok: true, players };

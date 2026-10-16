@@ -5,69 +5,86 @@
 # random_champion: optional, true = gets a random champion that fits their role
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
+# style: optional, a short description of how the player plays (shown when hovering the player)
 players:
   - name: Maas
     rank: 1
     role: support
     playing: true
+    style: "Dedicated support: Leona in every recorded game. Lives in the enemy's face with tons of crowd control and the best vision score in the lobby, setting up fights for the team. (12 games)"
   - name: Tsyuko
     rank: 3.5
     playing: true
+    style: "Bruiser and split-pusher (Locke, Yorick, Jax, Sion...). Puts heavy pressure on towers and is a real kill threat; plays all over the map but loves top lane. (12 games)"
   - name: ToLLL
     rank: 5
     playing: true
+    style: "The lobby's carry: plays every role and any champion (Garen, Tristana, Ahri, Sylas...). Leads in kill participation, damage and tower pressure while dying the least, and already has a pentakill. (12 games)"
   - name: DMZ
     rank: 2.5
     playing: true
+    style: "Engage-first jungler: one recorded game on Sejuani, 8/4/16 with huge objective control. (1 game)"
   - name: Greg
     rank: 3
     playing: true
   - name: Zeult
     rank: 4.5
     playing: true
+    style: "Artillery mage: one recorded game, a big one, Xerath mid at 13/3/15 with the highest damage on the map. (1 game)"
   - name: Gorhok
     rank: 2
     role: adc
     playing: true
+    style: "Bot-lane learner: Miss Fortune at ADC, Nautilus as a support option. Always joins the fights, with high kill participation. (3 games)"
   - name: Samy
     rank: 3
     playing: true
+    style: "Flexible all-rounder with a Yone habit (plus Caitlyn, Renekton, Lulu...). Best win rate among the regulars (8/12), strong damage and few deaths: shines in fights more than in split-pushing. (12 games)"
   - name: Azod
     rank: 3
     playing: true
+    style: "Off-meta specialist: Teemo, Shaco and Kog'Maw. Unpredictable picks with solid vision control, happy anywhere from support to jungle. (8 games)"
   - name: Momo
     rank: 2
     playing: true
+    style: "Hyper-carry fan: Jinx and Kayle are the go-to picks, mostly bot lane. Takes towers and objectives more than most and lets late-game scaling do the rest. (11 games)"
   - name: Thogae
     rank: 3.5
     playing: false
+    style: "Siege marksman: one recorded game on Caitlyn bot, doing almost all of the team's tower damage. (1 game)"
   - name: Nefer
     rank: 3.5
     playing: false
   - name: Balwé
     rank: 2
     playing: false
+    style: "Team-first playmaker (Tahm Kench, Ahri, Garen): big assist numbers and strong vision. (3 games)"
   - name: Dibs
     rank: 3.5
     playing: false
   - name: Asha
     rank: 3
     playing: false
+    style: "Aggressive brawler (Vladimir, Warwick, Leona): always in the action, with top kill participation and plenty of crowd control. (3 games)"
   - name: Alex
     rank: 3.5
     playing: false
   - name: Neo
     rank: 2.5
     playing: false
+    style: "Mid-focused mage and frontliner (Cho'Gath, Vladimir, Anivia, Swain...). Brings above-average crowd control, objective control and vision to the team. (12 games)"
   - name: Ely
     rank: 2.5
     playing: false
+    style: "Team player with a huge champion pool (Orianna, Hecarim, Fizz, Jhin, Rumble...). Assist-heavy (11 per game), dies less than average and plays every role but support. (11 games)"
   - name: Dydyre
     rank: 3
     playing: false
+    style: "Control mage at heart: Malzahar is the signature pick, with Volibear as the bruiser option. Lots of crowd control and strong dragon/baron control, comfortable in every role. (12 games)"
   - name: Diegz
     rank: 3.5
     playing: false
   - name: Shanou
     rank: 2.5
     playing: false
+    style: "Objective hunter (Katarina, Poppy, Jayce): very involved on dragons and barons, good kill participation and rarely dies. (3 games)"

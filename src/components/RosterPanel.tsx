@@ -125,7 +125,13 @@ export default function RosterPanel({ players, onChange, onResetToRepo }: Props)
                 onChange={(e) => update(p.id, { active: e.target.checked })}
                 title="Playing tonight"
               />
-              <input className="name" value={p.name} onChange={(e) => update(p.id, { name: e.target.value })} maxLength={24} />
+              <input
+                className={`name ${p.style ? 'has-style' : ''}`}
+                value={p.name}
+                onChange={(e) => update(p.id, { name: e.target.value })}
+                maxLength={24}
+                title={p.style}
+              />
               <StarRating value={p.rank} onChange={(r) => update(p.id, { rank: r })} />
               <RoleSelect value={p.fixedRole} onChange={(r) => update(p.id, { fixedRole: r })} />
               <BanSelect
