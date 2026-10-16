@@ -13,7 +13,14 @@ export function audio() {
     ctx = new AudioContext();
     master = ctx.createGain();
     master.gain.value = muted ? 0 : 0.6;
-    master.connect(ctx.destination);
+    // Safety limiter: whatever music, voice and effects overlap, the output never clips.
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -3;
+    limiter.knee.value = 3;
+    limiter.ratio.value = 12;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.2;
+    master.connect(limiter).connect(ctx.destination);
     musicBus = ctx.createGain();
     musicBus.gain.value = 0.5;
     musicBus.connect(master);

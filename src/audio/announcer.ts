@@ -1,4 +1,4 @@
-import { duckMusic } from './chiptune';
+import { duckMusic } from './music';
 import { audio, isMuted } from './engine';
 
 // Fighting-game announcer.

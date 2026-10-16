@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
-import { startMusic, stopMusic } from '../audio/chiptune';
+import { startMusic, stopMusic } from '../audio/music';
 import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, type Player, type Role, type TeamResult } from '../types';
 
@@ -111,11 +111,11 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       const o = isDuel ? DUEL_OFFSET : 0;
       timers = [
         at(o + T_TITLE + 0.1, () => void announce(laneLine(role))),
-        at(o + T_BLUE, whoosh),
+        at(o + T_BLUE, () => whoosh(true)),
         at(o + T_BLUE + 0.1, () => void announce(nameLine(result.blue[role]))),
         at(o + T_VS + SLAM, vsHit),
         at(o + T_VS + SLAM + 0.05, () => void announce(VERSUS)),
-        at(o + T_RED, whoosh),
+        at(o + T_RED, () => whoosh(false)),
         at(o + T_RED + 0.1, () => void announce(nameLine(result.red[role]))),
         advanceAfter(o + T_RED + HOLD_AFTER_RED),
       ];
