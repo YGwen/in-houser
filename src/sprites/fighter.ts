@@ -12,8 +12,37 @@ export const POSES: Pose[] = ['idle0', 'idle1', 'windup', 'strike', 'follow', 'g
 
 type Pt = [number, number];
 type HairStyle = 'short' | 'spiky' | 'long' | 'mohawk' | 'ponytail' | 'bald' | 'bob' | 'swept' | 'braids';
-type HeadGear = 'headband' | 'helmet-sun' | 'hood' | 'tricorn' | 'glasses' | 'mask-horns' | 'maw';
-type Weapon = 'none' | 'sword-shield' | 'katana' | 'pistols' | 'minigun' | 'orb' | 'claws' | 'void';
+type HeadGear =
+  | 'headband'
+  | 'helmet-sun'
+  | 'hood'
+  | 'tricorn'
+  | 'glasses'
+  | 'mask-horns'
+  | 'maw'
+  | 'wolf'
+  | 'facemask'
+  | 'diving-helmet'
+  | 'tophat'
+  | 'whiskers'
+  | 'crown'
+  | 'bird';
+type Weapon =
+  | 'none'
+  | 'sword-shield'
+  | 'greatsword'
+  | 'katana'
+  | 'wristblade'
+  | 'kama'
+  | 'pistols'
+  | 'minigun'
+  | 'crossbow'
+  | 'orb'
+  | 'staff'
+  | 'anchor'
+  | 'shovel'
+  | 'claws'
+  | 'void';
 
 export interface Costume {
   build: 'normal' | 'big';
@@ -40,6 +69,12 @@ export interface Costume {
   weapon: Weapon;
   /** Magic color: glowing hands, muzzle flashes, energy bursts. */
   glow?: string;
+  /** Center of a `void` orb (default: void purple). */
+  core?: string;
+  /** Blade color of a greatsword. */
+  blade?: string;
+  /** Armored or carapace torso (horizontal plates). */
+  plates?: boolean;
   attack: 'punch' | 'kick';
 }
 
@@ -146,6 +181,7 @@ export const CHAMPION_COSTUMES: Record<string, Costume> = {
     pants: '#5a4a78',
     boots: '#3a2e52',
     spikes: '#c9a8ff',
+    plates: true,
     gear: ['maw'],
     weapon: 'claws',
     glow: '#b4ff4a',
@@ -185,6 +221,270 @@ export const CHAMPION_COSTUMES: Record<string, Costume> = {
     gear: ['glasses'],
     weapon: 'none',
     glow: '#b45cff',
+    attack: 'punch',
+  },
+  Talon: {
+    build: 'normal',
+    skin: '#d9b08c',
+    hair: 'bald',
+    hairColor: '#2a2230',
+    eyes: '#d8e0ff',
+    top: '#2c2a44',
+    chest: '#5a5a7a',
+    belt: '#8a2a2a',
+    sleeves: 'full',
+    sleeveColor: '#3a3858',
+    pants: '#24223a',
+    boots: '#14121f',
+    hands: '#3a3858',
+    skirt: { color: '#2c2a44', length: 16, flare: 5, back: true },
+    gear: ['hood'],
+    weapon: 'wristblade',
+    glow: '#d8e0ff',
+    attack: 'punch',
+  },
+  KogMaw: {
+    build: 'big',
+    skin: '#a08a5a',
+    hair: 'bald',
+    hairColor: '#6e5a3a',
+    eyes: '#e6ff4a',
+    top: '#a08a5a',
+    chest: '#6e5a3a',
+    sleeves: 'none',
+    pants: '#8a744a',
+    boots: '#5a4a30',
+    spikes: '#c4ff4a',
+    plates: true,
+    gear: ['maw'],
+    weapon: 'void',
+    glow: '#a8ff3a',
+    core: '#3a5a10',
+    attack: 'punch',
+  },
+  Garen: {
+    build: 'big',
+    skin: '#e8c4a0',
+    hair: 'short',
+    hairColor: '#5b3416',
+    top: '#2f5fb3',
+    chest: '#e0b04a',
+    belt: '#e0b04a',
+    sleeves: 'full',
+    sleeveColor: '#3a6cc0',
+    pants: '#2a4a8a',
+    boots: '#6b6b7a',
+    hands: '#9aa5b0',
+    skirt: { color: '#f2efe6', length: 8, flare: 3 },
+    pauldron: '#e0b04a',
+    plates: true,
+    gear: [],
+    weapon: 'greatsword',
+    blade: '#e6eef6',
+    glow: '#ffd84a',
+    attack: 'punch',
+  },
+  Warwick: {
+    build: 'big',
+    skin: '#7d8794',
+    hair: 'mohawk',
+    hairColor: '#d9dde3',
+    eyes: '#ffd84a',
+    top: '#7d8794',
+    chest: '#5a6470',
+    belt: '#6b4a2a',
+    sleeves: 'none',
+    pants: '#4a3a2e',
+    boots: '#2e2420',
+    hands: '#7d8794',
+    gear: ['wolf'],
+    weapon: 'claws',
+    glow: '#ff3b4a',
+    attack: 'punch',
+  },
+  Brand: {
+    build: 'normal',
+    skin: '#3a2420',
+    hair: 'spiky',
+    hairColor: '#ff8a1f',
+    eyes: '#ffe14a',
+    top: '#3a2420',
+    chest: '#ff7a1f',
+    belt: '#5a3020',
+    sleeves: 'none',
+    pants: '#2a1a14',
+    boots: '#1a100c',
+    gear: [],
+    weapon: 'void',
+    glow: '#ff7a1f',
+    core: '#fff1a8',
+    attack: 'punch',
+  },
+  Akali: {
+    build: 'normal',
+    skin: '#e2b48c',
+    hair: 'ponytail',
+    hairColor: '#1f1a24',
+    top: '#1f2a2a',
+    chest: '#2ecc9a',
+    belt: '#2ecc9a',
+    sleeves: 'none',
+    pants: '#1f2a2a',
+    boots: '#141c1c',
+    hands: '#2a8f78',
+    gear: ['facemask'],
+    weapon: 'kama',
+    glow: '#2ecc9a',
+    attack: 'punch',
+  },
+  Xerath: {
+    build: 'normal',
+    skin: '#5fd8ff',
+    hair: 'bald',
+    hairColor: '#4a5568',
+    eyes: '#ffffff',
+    top: '#4a5568',
+    chest: '#5fd8ff',
+    belt: '#c9a24a',
+    sleeves: 'full',
+    sleeveColor: '#5a6578',
+    pants: '#4a5568',
+    boots: '#5fd8ff',
+    hands: '#5fd8ff',
+    skirt: { color: '#4a5568', length: 18, flare: 2 },
+    gear: ['hood'],
+    weapon: 'void',
+    glow: '#5fd8ff',
+    core: '#ffffff',
+    attack: 'punch',
+  },
+  Nami: {
+    build: 'normal',
+    skin: '#6cc4c8',
+    hair: 'long',
+    hairColor: '#2a5a8a',
+    top: '#ff7a5a',
+    chest: '#6cc4c8',
+    belt: '#e0b04a',
+    sleeves: 'none',
+    pants: '#2ab3a6',
+    boots: '#8ff0e8', // tail fins
+    skirt: { color: '#2ab3a6', length: 16, flare: -1 }, // tail, ending in a fin
+    gear: [],
+    weapon: 'staff',
+    glow: '#5fd8ff',
+    attack: 'punch',
+  },
+  Rakan: {
+    build: 'normal',
+    skin: '#e2b48c',
+    hair: 'long',
+    hairColor: '#3a2a24',
+    top: '#c0392b',
+    chest: '#e8b84a',
+    belt: '#e8b84a',
+    sleeves: 'half',
+    pants: '#2a2230',
+    boots: '#e8b84a',
+    spikes: '#e8b84a', // feathered cloak
+    skirt: { color: '#a8301f', length: 14, flare: 5, back: true },
+    gear: [],
+    weapon: 'none',
+    glow: '#ffd84a',
+    attack: 'kick',
+  },
+  Quinn: {
+    build: 'normal',
+    skin: '#e8c4a0',
+    hair: 'ponytail',
+    hairColor: '#2a1b12',
+    top: '#2e4a7a',
+    chest: '#c9d2dc',
+    belt: '#6b4a2a',
+    sleeves: 'full',
+    sleeveColor: '#3a5a8a',
+    pants: '#3a3f4a',
+    boots: '#4a3426',
+    hands: '#4a3426',
+    pauldron: '#c9d2dc',
+    gear: ['bird'],
+    weapon: 'crossbow',
+    glow: '#ffd84a',
+    attack: 'punch',
+  },
+  Nautilus: {
+    build: 'big',
+    skin: '#3d6b6b',
+    hair: 'bald',
+    hairColor: '#2f5252',
+    eyes: '#ffd84a',
+    top: '#3d6b6b',
+    chest: '#c8a24a',
+    belt: '#c8a24a',
+    sleeves: 'none',
+    pants: '#2f5252',
+    boots: '#1f3a3a',
+    hands: '#4a7a7a',
+    plates: true,
+    gear: ['diving-helmet'],
+    weapon: 'anchor',
+    glow: '#5fd8ff',
+    attack: 'punch',
+  },
+  TahmKench: {
+    build: 'big',
+    skin: '#4a6a8a',
+    hair: 'bald',
+    hairColor: '#2a3a4a',
+    top: '#2a2a3a',
+    chest: '#f2efe6',
+    belt: '#c0392b',
+    sleeves: 'full',
+    pants: '#2a2a3a',
+    boots: '#1a1a24',
+    gear: ['tophat', 'whiskers'],
+    weapon: 'none',
+    attack: 'punch',
+  },
+  Viego: {
+    build: 'normal',
+    skin: '#e8e4dc',
+    hair: 'swept',
+    hairColor: '#1f2a26',
+    eyes: '#5fffc4',
+    top: '#1f2a26',
+    chest: '#5fffc4',
+    belt: '#c9a24a',
+    sleeves: 'full',
+    sleeveColor: '#26332e',
+    pants: '#1a2420',
+    boots: '#101814',
+    hands: '#26332e',
+    skirt: { color: '#1a2420', length: 16, flare: 5, back: true },
+    gear: ['crown'],
+    weapon: 'greatsword',
+    blade: '#9ff5d8',
+    glow: '#5fffc4',
+    attack: 'punch',
+  },
+  Yorick: {
+    build: 'normal',
+    skin: '#c8b8a0',
+    hair: 'bald',
+    hairColor: '#2f3d35',
+    eyes: '#7dffb0',
+    top: '#3a4a40',
+    chest: '#c9c2b0',
+    belt: '#5a4a30',
+    sleeves: 'full',
+    sleeveColor: '#44564a',
+    pants: '#2a3530',
+    boots: '#1a2220',
+    hands: '#5a4a30',
+    skirt: { color: '#2f3d35', length: 16, flare: 5, back: true },
+    gear: ['hood'],
+    weapon: 'shovel',
+    glow: '#7dffb0',
     attack: 'punch',
   },
 };
@@ -355,7 +655,7 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
   const fistColor = c.weapon === 'none' && c.glow ? c.glow : c.weapon === 'void' ? c.glow! : handColor;
   const upperArm = c.sleeves === 'none' ? c.skin : (c.sleeveColor ?? c.top);
   const foreArm = c.sleeves === 'full' ? (c.sleeveColor ?? c.top) : c.skin;
-  const robe = c.skirt && c.skirt.length >= 16;
+  const robe = c.skirt && !c.skirt.back && c.skirt.length >= 16; // long robe or tail: hides the legs
 
   const fist = (h: Pt, col: string) => {
     const s = 4 + big;
@@ -367,7 +667,7 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
   };
   const leg = (hip: Pt, knee: Pt, foot: Pt) => {
     if (robe) {
-      g.rect(foot[0] - 2, 50, 6, 3, c.boots);
+      if (c.skirt!.flare >= 0) g.rect(foot[0] - 2, 50, 6, 3, c.boots); // a tail has one fin, drawn with it
       return;
     }
     g.limb(hip, knee, c.pants, 5 + big);
@@ -394,6 +694,14 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
     const r1 = k.back ? hipB[0] + 2 : hipF[0] + 3 + k.flare;
     g.trap(y0, y1, hipB[0] - 3, k.back ? hipB[0] + 3 : hipF[0] + 3, l1, r1, k.color);
     g.trap(y0, y1, hipB[0] - 3, hipB[0] - 2, l1, l1 + 1, dark(k.color));
+    if (k.flare < 0) {
+      // Mermaid tail: a fin spreading at the end.
+      const mid = Math.round((l1 + r1) / 2);
+      g.trap(y1, 52, mid - 2, mid + 2, mid - 7, mid + 7, c.boots);
+      g.rect(mid - 7, 52, 15, 1, dark(c.boots));
+      g.rect(mid, y1, 1, 52 - y1, light(c.boots));
+      return;
+    }
     if (c.belt && !k.back) g.rect(l1 + 1, y1, r1 - l1 - 1, 1, c.belt);
   };
 
@@ -426,7 +734,7 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
   g.trap(sF[1], hipF[1], sB[0] - w, sB[0] - w + 1, hipB[0] - 1, hipB[0], dark(c.top));
   g.trap(sF[1], hipF[1], sF[0] + w, sF[0] + w, hipF[0] + 1, hipF[0] + 1, light(c.top));
   if (c.chest) g.trap(sF[1], sF[1] + 6, bx + 30, bx + 35, bx + 33, bx + 33, c.chest);
-  if (c.weapon === 'claws' || c.spikes) {
+  if (c.plates) {
     // Carapace plates.
     for (let y = sF[1] + 3; y < hipF[1] - 1; y += 4) g.rect(sB[0] - 1, y, sF[0] - sB[0] + 3, 1, dark(c.top));
   }
@@ -587,6 +895,68 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
         for (const x of [5, 7, 9]) g.set(hx + x, hy + 9, '#f2efe6');
         g.rect(hx, hy - 1, 9, 2, dark(c.skin)); // brow plate
         break;
+      case 'wolf':
+        // Short pointed ears, swept back.
+        g.trap(hy - 3, hy, hx - 1, hx - 1, hx - 1, hx + 2, c.skin);
+        g.trap(hy - 3, hy, hx + 3, hx + 3, hx + 3, hx + 6, c.skin);
+        g.set(hx + 4, hy - 1, dark(c.skin));
+        g.rect(hx + 8, hy + 5, 6, 4, c.skin); // snout
+        g.rect(hx + 8, hy + 8, 6, 1, dark(c.skin));
+        g.set(hx + 13, hy + 5, '#1a1420');
+        g.set(hx + 11, hy + 9, '#f2efe6'); // fang
+        break;
+      case 'facemask':
+        g.rect(hx + 3, hy + 6, 8, 5, '#1f6b5a');
+        g.rect(hx + 3, hy + 6, 8, 1, '#2ecc9a');
+        break;
+      case 'diving-helmet': {
+        const brass = '#c8a24a';
+        g.disc(hx + 5, hy + 5, 7, dark(brass));
+        g.disc(hx + 5, hy + 4, 6, brass);
+        g.disc(hx + 8, hy + 5, 3, dark(brass));
+        g.disc(hx + 8, hy + 5, 2, '#1f3a3a');
+        g.rect(hx + 8, hy + 5, 2, 1, c.eyes ?? '#ffd84a');
+        for (const [x, y] of [
+          [1, 0],
+          [0, 5],
+          [2, 10],
+          [5, -1],
+        ]) g.set(hx + x, hy + y, light(brass));
+        break;
+      }
+      case 'tophat': {
+        const hat = '#1f1a24';
+        g.rect(hx, hy - 9, 10, 9, hat);
+        g.rect(hx - 2, hy - 1, 14, 2, hat);
+        g.rect(hx, hy - 3, 10, 1, '#c0392b');
+        g.rect(hx + 2, hy - 9, 1, 6, light(hat));
+        break;
+      }
+      case 'whiskers':
+        g.rect(hx + 3, hy + 8, 9, 1, '#1a0f20'); // wide grin
+        g.set(hx + 9, hy + 9, '#ff8ab8');
+        g.line([hx + 10, hy + 6], [hx + 15, hy + 9], light(c.skin), 1);
+        g.line([hx + 10, hy + 7], [hx + 14, hy + 12], light(c.skin), 1);
+        break;
+      case 'crown': {
+        const metal = '#2a3a34';
+        g.rect(hx - 1, hy - 2, 11, 2, metal);
+        for (const x of [0, 3, 6, 9]) {
+          g.line([hx + x, hy - 2], [hx + x, hy - 6], metal, 1);
+          g.set(hx + x, hy - 6, c.glow ?? '#ffffff');
+        }
+        break;
+      }
+      case 'bird': {
+        // Valor, perched behind the shoulder.
+        const [x, y] = [sB[0] - 5, sB[1] - 7];
+        g.disc(x, y, 2, '#3f6fd8');
+        g.line([x - 1, y], [x - 5, y - 3], '#2e4a9a', 2);
+        g.set(x + 2, y - 1, '#ffd84a');
+        g.set(x + 1, y - 1, EYE);
+        g.set(x - 1, y + 3, '#ffd84a');
+        break;
+      }
     }
   }
 
@@ -607,6 +977,57 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
       g.line(along(fH, blade, 2), along(fH, blade, 15), '#fff4c8', 2);
       g.line(along(fH, blade, 2), along(fH, blade, 15), '#e8b84a', 1);
       g.line(add(fH, -blade[1] * 3, blade[0] * 3), add(fH, blade[1] * 3, -blade[0] * 3), '#e8b84a', 2);
+      break;
+    case 'greatsword': {
+      const steel = c.blade ?? '#dfe7ef';
+      g.line(along(fH, blade, -4), fH, '#4a3426', 2);
+      g.line(along(fH, blade, 2), along(fH, blade, 21), dark(steel), 3);
+      g.line(along(fH, blade, 2), along(fH, blade, 21), light(steel), 1);
+      g.line(add(fH, -blade[1] * 3, blade[0] * 3), add(fH, blade[1] * 3, -blade[0] * 3), '#e0b04a', 2);
+      break;
+    }
+    case 'wristblade': {
+      // Blades strapped along the forearm, sticking out past the fist.
+      const len = Math.hypot(fH[0] - fE[0], fH[1] - fE[1]) || 1;
+      const d: Pt = [(fH[0] - fE[0]) / len, (fH[1] - fE[1]) / len];
+      g.line(along(fH, d, -2), along(fH, d, 9), '#dfe7ef', 2);
+      g.line(along(fH, d, 3), along(fH, d, 9), '#8a96a8', 1);
+      break;
+    }
+    case 'kama': {
+      const tip = along(fH, blade, 6);
+      g.line(along(fH, blade, -2), tip, '#6b4a2a', 1);
+      g.line(tip, add(tip, blade[1] * 5, -blade[0] * 5), '#dfe7ef', 2);
+      g.set(...add(tip, blade[1] * 5 - blade[0], -blade[0] * 5 - blade[1]), '#2ecc9a');
+      break;
+    }
+    case 'crossbow': {
+      const aim = dir(p.aim);
+      g.line(fH, along(fH, aim, 7), '#6b4a2a', 2);
+      const bow = along(fH, aim, 6);
+      g.line(add(bow, -aim[1] * 4, aim[0] * 4), add(bow, aim[1] * 4, -aim[0] * 4), '#c9c2b0', 1);
+      if (pose === 'strike') g.line(along(fH, aim, 11), along(fH, aim, 19), '#e6eef6', 1);
+      else g.line(fH, along(fH, aim, 9), '#e6eef6', 1);
+      break;
+    }
+    case 'staff':
+      g.line(along(fH, blade, -10), along(fH, blade, 10), '#2a8f9a', 2);
+      g.disc(...along(fH, blade, 12), 2, c.glow ?? '#5fd8ff');
+      g.set(...along(fH, blade, 12), '#ffffff');
+      break;
+    case 'anchor': {
+      const tip = along(fH, blade, 16);
+      const side: Pt = [-blade[1], blade[0]];
+      g.line(along(fH, blade, -4), tip, '#4a5560', 2);
+      g.line(add(along(fH, blade, 12), side[0] * 3, side[1] * 3), add(along(fH, blade, 12), -side[0] * 3, -side[1] * 3), '#4a5560', 2);
+      for (const s of [5, -5]) g.line(tip, add(along(tip, blade, -3), side[0] * s, side[1] * s), '#6b7a88', 2);
+      g.disc(...along(fH, blade, -5), 1, '#c8a24a');
+      break;
+    }
+    case 'shovel':
+      g.line(along(fH, blade, -7), along(fH, blade, 12), '#6b4a2a', 2);
+      g.line(along(fH, blade, 12), along(fH, blade, 18), '#8a9a8f', 5);
+      g.line(along(fH, blade, 13), along(fH, blade, 17), light('#8a9a8f'), 1);
       break;
     case 'katana':
       g.line(along(fH, blade, -4), fH, '#1f1a24', 2);
@@ -633,7 +1054,7 @@ export function drawPose(c: Costume, pose: Pose, band: string): Pixels {
       break;
     case 'void':
       g.disc(fH[0] + 3, fH[1], pose === 'strike' ? 5 : 3, c.glow!);
-      g.disc(fH[0] + 3, fH[1], pose === 'strike' ? 3 : 1, '#2a0f3a');
+      g.disc(fH[0] + 3, fH[1], pose === 'strike' ? 3 : 1, c.core ?? '#2a0f3a');
       break;
     case 'none':
       if (c.glow && pose === 'strike') burst(g, add(fH, 4, 0), c.glow);
