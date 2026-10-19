@@ -1,7 +1,6 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
 import { startMusic, stopMusic } from '../audio/music';
-import { REVEAL_TRACK } from '../audio/tracks';
 import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, ROLE_LABELS, type Player, type Role, type TeamResult } from '../types';
 import ChampionTag from './ChampionTag';
@@ -78,7 +77,7 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
   const done = useCallback(() => onDoneRef.current(), []);
 
   useEffect(() => {
-    startMusic(REVEAL_TRACK);
+    startMusic();
     preloadVoice([
       VERSUS,
       DUEL,

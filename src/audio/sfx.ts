@@ -1,6 +1,6 @@
 import { duckMusic } from './music';
 import { audio, midiToFreq, noise, tone } from './engine';
-import { boom, brass, crash, createEcho, orchestraHit, sweep } from './instruments';
+import { boom, brass, crash, createEcho, orchestraHit, pad, snare, sweep } from './instruments';
 
 // 16-bit style sound effects for the reveal, sharing one SNES-style echo.
 
@@ -61,19 +61,43 @@ export function duelSting() {
   }
 }
 
-/** Brass fanfare for the "FIGHT!" screen. */
+/**
+ * "VS" sting for the FIGHT! screen (~4.3 s at 150 BPM, in Arena's key): orchestra hits climbing
+ * A minor -> F -> G with a brass run, a snare roll, then a held A major brass chord.
+ */
 export function fightJingle() {
   const { t, out, echo } = buses();
-  // Three pickup notes, then a held C major chord.
-  [67, 67, 72].forEach((m, i) => {
-    brass(out, midiToFreq(m), t + i * 0.11, 0.09, 0.12);
-    brass(echo, midiToFreq(m), t + i * 0.11, 0.09, 0.05);
+  const S = 0.1; // one 16th note at 150 BPM
+  duckMusic(4.4, 0.15);
+
+  const stab = (at: number, root: number, chord: number[], dur: number, vol: number) => {
+    orchestraHit(out, midiToFreq(root), at, 0.2);
+    orchestraHit(echo, midiToFreq(root), at, 0.08);
+    for (const m of chord) brass(out, midiToFreq(m), at, dur, vol);
+  };
+
+  // Hit 1: A minor, with a boom and crash.
+  stab(t, 45, [57, 60, 64], 0.25, 0.08);
+  boom(out, t, 0.8);
+  crash(out, t, 0.16);
+  // Brass run up to the next hit.
+  [64, 67, 69, 72].forEach((m, i) => {
+    brass(out, midiToFreq(m), t + (3 + i) * S, S * 0.9, 0.11);
+    brass(echo, midiToFreq(m), t + (3 + i) * S, S * 0.9, 0.05);
   });
-  const hold = t + 0.36;
-  for (const m of [60, 64, 67, 72]) {
-    brass(out, midiToFreq(m), hold, 0.9, 0.08);
-    brass(echo, midiToFreq(m), hold, 0.9, 0.04);
-  }
-  boom(out, hold, 0.8);
-  crash(out, hold, 0.2);
+  // Hits 2 and 3: F, then G.
+  stab(t + 8 * S, 41, [65, 69, 72], 0.35, 0.08);
+  stab(t + 12 * S, 43, [67, 71, 74], 0.35, 0.08);
+  // Snare roll in 32nds, getting louder into the last hit.
+  for (let i = 0; i < 16; i++) snare(out, t + 12 * S + i * (S / 2), 0.08 + i * 0.016);
+
+  // Last hit: held A major, topped by a high A.
+  const last = t + 20 * S;
+  stab(last, 45, [57, 61, 64, 69], 2.0, 0.07);
+  for (const m of [61, 64, 69]) brass(echo, midiToFreq(m), last, 2.0, 0.03);
+  brass(out, midiToFreq(81), last + 2 * S, 1.8, 0.09);
+  brass(echo, midiToFreq(81), last + 2 * S, 1.8, 0.04);
+  pad(out, [57, 61, 64, 69].map(midiToFreq), last, 2.3, 0.06);
+  boom(out, last, 0.9);
+  crash(out, last, 0.22);
 }

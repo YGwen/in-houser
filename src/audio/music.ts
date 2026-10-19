@@ -1,20 +1,17 @@
 import { audio, midiToFreq } from './engine';
 import { brass, crash, createEcho, fmBass, hat, kick, lead, pad, snare } from './instruments';
-import { DEFAULT_TRACK, isFileTrack, trackById, type FileTrack, type Track } from './tracks';
+import { DEFAULT_TRACK, trackById, type Track } from './tracks';
 
-// Plays the selected track (src/audio/tracks.ts): synthesized tracks with a lookahead scheduler on the
-// audio clock, recorded tracks (audio files) as a looping buffer. Both go through the same bus, so
-// ducking under the announcer and fading out work the same way.
+// Plays the selected track (src/audio/tracks.ts) with a lookahead scheduler on the audio clock.
 const STEPS_PER_BAR = 16;
 
-let track: Track | FileTrack = trackById(DEFAULT_TRACK);
+let track: Track = trackById(DEFAULT_TRACK);
 let melodyAt = new Map<number, [number, number]>();
 
-function prepare(t: Track | FileTrack) {
+function prepare(t: Track) {
   track = t;
-  melodyAt = new Map();
-  if (isFileTrack(t)) return;
   // Melody note starts, indexed by absolute step in the loop.
+  melodyAt = new Map();
   t.melody.forEach((bar, b) => {
     let s = b * STEPS_PER_BAR;
     for (const [note, len] of bar) {
@@ -25,8 +22,7 @@ function prepare(t: Track | FileTrack) {
 }
 prepare(track);
 
-const synth = () => track as Track;
-const stepSeconds = () => 60 / synth().bpm / 4; // one 16th note
+const stepSeconds = () => 60 / track.bpm / 4; // one 16th note
 
 let timer: number | null = null;
 let step = 0;
@@ -36,7 +32,6 @@ let echo: AudioNode | null = null;
 
 function scheduleStep(s: number, t: number) {
   if (!busGain || !echo) return;
-  const track = synth();
   const bar = Math.floor(s / STEPS_PER_BAR);
   const i = s % STEPS_PER_BAR;
   const chord = track.chords[bar % track.chords.length];
@@ -86,91 +81,30 @@ export function setMusicTrack(id: string) {
 
 export const currentTrack = () => track.id;
 
-// Recorded tracks: decoded once, then looped.
-const fileBuffers = new Map<string, Promise<AudioBuffer | null>>();
-let fileSource: AudioBufferSourceNode | null = null;
-let playing = false;
-
-function loadFile(file: string) {
-  let b = fileBuffers.get(file);
-  if (!b) {
-    b = fetch(`${import.meta.env.BASE_URL}${file}`)
-      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.statusText))))
-      .then((d) => audio().ctx.decodeAudioData(d))
-      .catch(() => null);
-    fileBuffers.set(file, b);
-  }
-  return b;
-}
-
-function startFile(t: FileTrack, bus: GainNode) {
-  void loadFile(t.file).then((buffer) => {
-    if (!playing || busGain !== bus) return; // stopped (or switched) while loading
-    if (!buffer) {
-      startOnBus(trackById(t.fallback), bus); // file missing (e.g. live site): use the built-in track
-      return;
-    }
-    const { ctx } = audio();
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    src.loop = t.loop ?? true;
-    const level = ctx.createGain();
-    level.gain.value = t.gain ?? 1;
-    src.connect(level).connect(bus);
-    if (!src.loop && t.then) {
-      const next = trackById(t.then);
-      src.onended = () => {
-        if (playing && busGain === bus && fileSource === src) startOnBus(next, bus);
-      };
-    }
-    src.start();
-    fileSource = src;
-  });
-}
-
-/** Start a track (synthesized or file) on the current music bus. */
-function startOnBus(t: Track | FileTrack, bus: GainNode) {
-  prepare(t);
-  if (isFileTrack(t)) {
-    startFile(t, bus);
-    return;
-  }
-  const { ctx } = audio();
-  fileSource = null;
-  echo = createEcho(bus);
-  step = 0;
-  nextTime = ctx.currentTime + 0.05;
-  // Lookahead scheduler: precise timing from the audio clock, driven by a coarse JS timer.
-  if (timer !== null) window.clearInterval(timer);
-  timer = window.setInterval(() => {
-    while (nextTime < ctx.currentTime + 0.15) {
-      scheduleStep(step, nextTime);
-      nextTime += stepSeconds();
-      step = (step + 1) % (STEPS_PER_BAR * synth().melody.length);
-    }
-  }, 25);
-}
-
-/** Start the music: `id` picks the track (otherwise the last one set). */
-export function startMusic(id?: string) {
-  if (playing) return;
-  playing = true;
+export function startMusic() {
+  if (timer !== null) return;
   const { ctx, musicBus } = audio();
   busGain = ctx.createGain();
   busGain.gain.setValueAtTime(1, ctx.currentTime);
   busGain.connect(musicBus);
-  startOnBus(id ? trackById(id) : track, busGain);
+  echo = createEcho(busGain);
+  step = 0;
+  nextTime = ctx.currentTime + 0.05;
+  // Lookahead scheduler: precise timing from the audio clock, driven by a coarse JS timer.
+  timer = window.setInterval(() => {
+    while (nextTime < ctx.currentTime + 0.15) {
+      scheduleStep(step, nextTime);
+      nextTime += stepSeconds();
+      step = (step + 1) % (STEPS_PER_BAR * track.melody.length);
+    }
+  }, 25);
 }
 
 export function stopMusic(fadeSeconds = 0.6) {
-  if (!playing) return;
-  playing = false;
-  if (timer !== null) window.clearInterval(timer);
+  if (timer === null) return;
+  window.clearInterval(timer);
   timer = null;
   const { ctx } = audio();
-  const src = fileSource;
-  fileSource = null;
-  if (src) window.setTimeout(() => src.stop(), fadeSeconds * 1000 + 200);
   const g = busGain;
   busGain = null;
   echo = null;
@@ -183,10 +117,15 @@ export function stopMusic(fadeSeconds = 0.6) {
 /**
  * Lower the music briefly so a sound stands out. `level` is the music volume while ducked:
  * 0.2 for short dramatic effects, higher for the announcer so the music stays audible under it.
+ * A deeper duck that lasts longer wins (the announcer doesn't bring the music back up under the FIGHT! sting).
  */
+let ducked = { until: 0, level: 1 };
 export function duckMusic(seconds: number, level = 0.2) {
   if (!busGain) return;
   const { ctx } = audio();
+  const until = ctx.currentTime + seconds;
+  if (ctx.currentTime < ducked.until && ducked.level <= level && until <= ducked.until) return;
+  ducked = { until, level };
   const g = busGain.gain;
   g.cancelScheduledValues(ctx.currentTime);
   g.setTargetAtTime(level, ctx.currentTime, 0.03);
