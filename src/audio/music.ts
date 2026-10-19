@@ -112,12 +112,15 @@ export function stopMusic(fadeSeconds = 0.6) {
   }
 }
 
-/** Lower the music briefly so a sound effect stands out. */
-export function duckMusic(seconds: number) {
+/**
+ * Lower the music briefly so a sound stands out. `level` is the music volume while ducked:
+ * 0.2 for short dramatic effects, higher for the announcer so the music stays audible under it.
+ */
+export function duckMusic(seconds: number, level = 0.2) {
   if (!busGain) return;
   const { ctx } = audio();
   const g = busGain.gain;
   g.cancelScheduledValues(ctx.currentTime);
-  g.setTargetAtTime(0.2, ctx.currentTime, 0.03);
+  g.setTargetAtTime(level, ctx.currentTime, 0.03);
   g.setTargetAtTime(1, ctx.currentTime + seconds, 0.2);
 }

@@ -148,6 +148,11 @@ export function arenaChain(): AudioNode {
 
 /** Playback rate per style: below 1 makes the voice deeper and slower (the classic announcer trick). */
 export const CLIP_RATE: Record<Style, number> = { call: 0.9, name: 0.93, hype: 0.82 };
+/**
+ * Music volume while the announcer talks. Lines come back to back during a reveal, so a deep duck
+ * (0.2) kept the music near-silent the whole time; 0.6 (-4.4 dB) keeps the voice clear and the music audible.
+ */
+const ANNOUNCER_DUCK = 0.6;
 /** Generated clips end with this much silence (see TAIL_SILENCE_S in scripts/piper_batch.py). */
 const CLIP_TAIL_S = 0.25;
 
@@ -162,7 +167,7 @@ function playClip(buffer: AudioBuffer, style: Style): Promise<void> {
   gain.gain.value = style === 'hype' ? 1.2 : 1;
   src.connect(gain).connect(arenaChain());
   const seconds = buffer.duration / CLIP_RATE[style];
-  duckMusic(seconds + 0.3);
+  duckMusic(seconds + 0.3, ANNOUNCER_DUCK);
   current = src;
   src.onended = () => {
     if (current === src) current = null;
@@ -213,7 +218,7 @@ function speak(text: string, style: Style): Promise<void> {
     };
     u.onend = finish;
     u.onerror = finish;
-    u.onstart = () => duckMusic(Math.min(2.5, 0.4 + text.length * 0.08));
+    u.onstart = () => duckMusic(Math.min(2.5, 0.4 + text.length * 0.08), ANNOUNCER_DUCK);
     speechSynthesis.speak(u);
   });
 }
