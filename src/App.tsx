@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { setAnnouncerEnabled, stopAnnouncer } from './audio/announcer';
 import { audio, setMuted } from './audio/engine';
-import { startMusic, stopMusic } from './audio/music';
+import { playMusic } from './audio/music';
 import { MENU_TRACK } from './audio/tracks';
 import DuelPanel from './components/DuelPanel';
 import HistoryPanel from './components/HistoryPanel';
@@ -51,8 +51,9 @@ export default function App() {
   }, [muted]);
   useEffect(() => setAnnouncerEnabled(announcer), [announcer]);
 
-  // Setup-screen music (Player Select), like a fighting game's character select. Browsers only allow
-  // sound after a user gesture, so it starts on the first click/keypress, and it gives way to the reveal.
+  // Player Select, like a fighting game's character select: it plays on the setup screen and keeps going
+  // through the reveal (which switches to the VS jingle on FIGHT!). Browsers only allow sound after a
+  // user gesture, so it starts on the first click/keypress. After the reveal it comes back if needed.
   const [soundUnlocked, setSoundUnlocked] = useState(false);
   useEffect(() => {
     const unlock = () => setSoundUnlocked(true);
@@ -64,10 +65,9 @@ export default function App() {
     };
   }, []);
   useEffect(() => {
-    if (!soundUnlocked || revealing) return;
+    if (!soundUnlocked) return;
     audio();
-    startMusic(MENU_TRACK);
-    return () => stopMusic(0.4);
+    playMusic(MENU_TRACK);
   }, [soundUnlocked, revealing]);
 
   // Drop duels whose players were removed or are no longer playing tonight.

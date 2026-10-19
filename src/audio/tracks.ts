@@ -290,26 +290,26 @@ export const TRACKS: (Track | FileTrack)[] = [
   {
     id: 'sf2-select',
     name: 'Player Select (SF2 Turbo)',
-    description: 'Recorded track, loops on the setup screen. Local file public/music/03. Player Select.mp3 (falls back to Arena)',
+    description: 'Recorded track, loops on the setup screen and under the reveal. File public/music/03. Player Select.mp3 (falls back to Arena)',
     file: 'music/03. Player Select.mp3',
-    gain: 0.7,
+    gain: 1.2,
     fallback: 'arena',
   },
   {
     id: 'sf2-vs',
-    name: 'VS (SF2 Turbo) → Arena',
-    description: 'Recorded 4.5 s VS jingle when the reveal opens, then Arena. Local file public/music/04. VS..mp3',
+    name: 'VS (SF2 Turbo) → Player Select',
+    description: 'Recorded 4.5 s VS jingle on the FIGHT! screen, then Player Select again. File public/music/04. VS..mp3',
     file: 'music/04. VS..mp3',
-    gain: 0.8,
+    gain: 1.4,
     loop: false,
-    then: 'arena',
-    fallback: 'arena',
+    then: 'sf2-select',
+    fallback: 'sf2-select', // jingle missing: keep the theme going
   },
 ];
 
 export const DEFAULT_TRACK = 'arena';
 
-/** Music on the setup screen, and when the reveal opens (each falls back to Arena if its file is missing). */
+/** Music on the setup screen and through the reveal, and the jingle on the FIGHT! screen. */
 export const MENU_TRACK = 'sf2-select';
 export const REVEAL_TRACK = 'sf2-vs';
 

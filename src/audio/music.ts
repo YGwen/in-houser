@@ -162,6 +162,13 @@ export function startMusic(id?: string) {
   startOnBus(id ? trackById(id) : track, busGain);
 }
 
+/** Play track `id`: keeps going if it is already playing, otherwise fades out what plays and switches. */
+export function playMusic(id: string) {
+  if (playing && track.id === id) return;
+  stopMusic(0.3);
+  startMusic(id);
+}
+
 export function stopMusic(fadeSeconds = 0.6) {
   if (!playing) return;
   playing = false;
