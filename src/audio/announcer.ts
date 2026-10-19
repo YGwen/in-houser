@@ -79,7 +79,7 @@ function impulse(ctx: AudioContext, seconds: number, decay: number) {
   return ir;
 }
 
-function arenaChain(): AudioNode {
+export function arenaChain(): AudioNode {
   if (chainInput) return chainInput;
   const { ctx, sfxBus } = audio();
 
@@ -147,7 +147,7 @@ function arenaChain(): AudioNode {
 // ---------- Playback ----------
 
 /** Playback rate per style: below 1 makes the voice deeper and slower (the classic announcer trick). */
-const CLIP_RATE: Record<Style, number> = { call: 0.9, name: 0.93, hype: 0.82 };
+export const CLIP_RATE: Record<Style, number> = { call: 0.9, name: 0.93, hype: 0.82 };
 /** Generated clips end with this much silence (see TAIL_SILENCE_S in scripts/piper_batch.py). */
 const CLIP_TAIL_S = 0.25;
 
@@ -177,13 +177,14 @@ function playClip(buffer: AudioBuffer, style: Style): Promise<void> {
 // Browser text-to-speech fallback.
 const speechSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
 let ttsVoice: SpeechSynthesisVoice | null = null;
-const PREFERRED_TTS = ['Guy Online', 'Christopher Online', 'Eric Online', 'Ryan Online', 'Google UK English Male', 'Microsoft David', 'Microsoft Mark', 'Daniel', 'Alex'];
+// Female voices, to match the pre-recorded announcer (Piper hfc_female).
+const PREFERRED_TTS = ['Aria Online', 'Jenny Online', 'Michelle Online', 'Google US English', 'Google UK English Female', 'Microsoft Zira', 'Samantha', 'Karen'];
 
 function pickTtsVoice() {
   const english = speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('en'));
   ttsVoice =
     PREFERRED_TTS.map((n) => english.find((v) => v.name.includes(n))).find(Boolean) ??
-    english.find((v) => /male|david|mark|guy/i.test(v.name)) ??
+    english.find((v) => /female|zira|aria|jenny|samantha/i.test(v.name)) ??
     english[0] ??
     null;
 }

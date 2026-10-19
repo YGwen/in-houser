@@ -5,3 +5,4 @@ dist
 .venv-voice
 .claude/
 __pycache__/
+public/voice-lab/
