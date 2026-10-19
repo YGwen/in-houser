@@ -3,6 +3,8 @@
 // B: live text-to-speech voices available in this browser.
 import { arenaChain, CLIP_RATE, voiceKey, type Style } from './audio/announcer';
 import { audio } from './audio/engine';
+import { setMusicTrack, startMusic, stopMusic } from './audio/music';
+import { TRACKS } from './audio/tracks';
 import { repoRoster } from './roster';
 
 const LINES: { file: string; text: string; style: Style }[] = [
@@ -44,6 +46,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function stopAll() {
   generation++;
+  stopMusic(0.3);
   sources.forEach((s) => {
     try {
       s.stop();
@@ -216,6 +219,24 @@ async function renderNames() {
   });
 }
 
+// Music tracks for the reveal.
+TRACKS.forEach((t, i) => {
+  const r = row(`T${i + 1}`, t.name, t.description, t.id === 'arena');
+  r.querySelector('.actions')!.append(
+    button('▶ Play', () => {
+      stopAll();
+      // Let the previous track fade before the new one starts.
+      window.setTimeout(() => {
+        setMusicTrack(t.id);
+        startMusic();
+        r.classList.add('playing');
+      }, 350);
+    }, true),
+  );
+  document.getElementById('music')!.append(r);
+});
+
+document.getElementById('stop-top')!.addEventListener('click', stopAll);
 document.getElementById('stop')!.addEventListener('click', stopAll);
 void renderNames();
 renderLive();
