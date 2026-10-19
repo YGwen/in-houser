@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ART_W, ART_H, championPixelArt } from '../sprites/championArt';
+import { championPixelArt } from '../sprites/championArt';
+import { championModelSprite } from '../sprites/championModel';
 import { SPRITE_H, SPRITE_W, costumeFor, drawPose, frontOf, type Pixels, type Pose } from '../sprites/fighter';
 
 export type FighterAction = 'idle' | 'attack' | 'parry';
@@ -58,22 +59,41 @@ interface Props {
   action: FighterAction;
 }
 
+/** A still image fighter: the champion's 3D model render or its portrait, as pixel art. */
+interface Still {
+  kind: 'model' | 'portrait';
+  canvas: HTMLCanvasElement;
+  /** Front of the fighter (facing right), as a fraction of the width from the left. */
+  front: number;
+}
+
+/** The best fighter we can show for a champion: its in-game model, else its pixelated portrait. */
+async function stillFor(main: string): Promise<Still | null> {
+  const model = await championModelSprite(main);
+  if (model) return { kind: 'model', canvas: model.canvas, front: model.front };
+  const art = await championPixelArt(main);
+  return art ? { kind: 'portrait', canvas: art, front: 0.97 } : null;
+}
+
+/** Start rendering a champion's fighter early (e.g. when the reveal opens). */
+export const prepareFighter = (main: string) => void stillFor(main);
+
 /**
- * A player's fighter: their main champion's art as a pixel-art portrait when it loads, else an animated
- * pixel sprite. Blue faces right, red is mirrored to face left.
+ * A player's fighter: their main champion's in-game model as pixel art, else the champion's pixelated
+ * portrait, else an animated pixel sprite. Blue faces right, red is mirrored to face left.
  */
 export default function PixelFighter({ name, main, side, action }: Props) {
-  const [art, setArt] = useState<HTMLCanvasElement | null>(null);
+  const [still, setStill] = useState<Still | null>(null);
   useEffect(() => {
     let live = true;
-    setArt(null);
-    if (main) void championPixelArt(main).then((c) => live && setArt(c));
+    setStill(null);
+    if (main) void stillFor(main).then((s) => live && setStill(s));
     return () => {
       live = false;
     };
   }, [main]);
-  return art ? (
-    <Portrait art={art} side={side} action={action} />
+  return still ? (
+    <StillFighter still={still} side={side} action={action} />
   ) : (
     <Sprite name={name} main={main} side={side} action={action} />
   );
@@ -97,19 +117,21 @@ function useLunge(wrap: React.RefObject<HTMLSpanElement | null>, action: Fighter
   }, [wrap, action, reach]);
 }
 
-function Portrait({ art, side, action }: { art: HTMLCanvasElement; side: 'blue' | 'red'; action: FighterAction }) {
+function StillFighter({ still, side, action }: { still: Still; side: 'blue' | 'red'; action: FighterAction }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const wrap = useRef<HTMLSpanElement>(null);
-  useLunge(wrap, action, 0.97); // portraits collide frame to frame
+  useLunge(wrap, action, still.front);
   useEffect(() => {
     const g = ref.current?.getContext('2d');
-    g?.clearRect(0, 0, ART_W, ART_H);
-    g?.drawImage(art, 0, 0);
-  }, [art]);
+    if (!g) return;
+    g.clearRect(0, 0, still.canvas.width, still.canvas.height);
+    g.drawImage(still.canvas, 0, 0);
+  }, [still]);
+  const guard = 1 - still.front; // red is mirrored
   return (
-    <span className={`pixel-fighter portrait ${side} ${action}`} ref={wrap} data-guard={0.03}>
-      <canvas ref={ref} width={ART_W} height={ART_H} aria-hidden="true" />
-      {action === 'parry' && <span className="spark" style={{ left: '3%', top: '45%' }} />}
+    <span className={`pixel-fighter still ${still.kind} ${side} ${action}`} ref={wrap} data-guard={guard}>
+      <canvas ref={ref} width={still.canvas.width} height={still.canvas.height} aria-hidden="true" />
+      {action === 'parry' && <span className="spark" style={{ left: `${guard * 100}%`, top: '40%' }} />}
     </span>
   );
 }

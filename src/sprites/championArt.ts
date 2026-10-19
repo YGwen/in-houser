@@ -13,23 +13,42 @@ const SRC_H = Math.round((SRC_W * ART_H) / ART_W);
 
 export const loadingArtUrl = (id: string) => `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${id}_0.jpg`;
 
+export interface QuantizeOptions {
+  /** Number of colors. */
+  k?: number;
+  /** Image width: enables the cleanup passes (stray pixels, ink, outline). */
+  width?: number;
+  /** Ink the darker side of strong edges (painted art). */
+  ink?: boolean;
+  /** Keep transparency: transparent pixels stay transparent and get a dark outline around the shape. */
+  alpha?: boolean;
+}
+
+const OUTLINE = [18, 12, 24];
+
 /**
  * Reduce RGBA pixels in place to `k` colors (k-means, seeded across the brightness range), with a
  * little extra contrast and saturation first so the small palette keeps the art's punch, and each
  * color snapped to 5 bits per channel like the SNES.
  */
-export function quantize(data: Uint8ClampedArray, k = COLORS, width = 0) {
+export function quantize(data: Uint8ClampedArray, { k = COLORS, width = 0, ink = false, alpha = false }: QuantizeOptions = {}) {
   const n = data.length / 4;
+  const opaque = (i: number) => !alpha || data[i * 4 + 3] >= 128;
+  const solid: number[] = [];
   const px: [number, number, number][] = [];
   for (let i = 0; i < n; i++) {
+    if (!opaque(i)) continue;
     let [r, g, b] = [data[i * 4], data[i * 4 + 1], data[i * 4 + 2]];
     const l = 0.299 * r + 0.587 * g + 0.114 * b;
     [r, g, b] = [r, g, b].map((v) => (l + (v - l) * 1.2 - 128) * 1.1 + 128) as [number, number, number];
+    solid.push(i);
     px.push([r, g, b].map((v) => Math.min(255, Math.max(0, v))) as [number, number, number]);
   }
-  const lum = (p: [number, number, number]) => 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2];
+  if (!px.length) return 0;
+  const lum = (p: number[]) => 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2];
   const sorted = [...px].sort((a, b) => lum(a) - lum(b));
-  let centers = Array.from({ length: k }, (_, i) => [...sorted[Math.floor(((i + 0.5) * n) / k)]] as [number, number, number]);
+  k = Math.min(k, px.length);
+  let centers = Array.from({ length: k }, (_, i) => [...sorted[Math.floor(((i + 0.5) * px.length) / k)]]);
   const nearest = (p: [number, number, number]) => {
     let best = 0;
     let bestD = Infinity;
@@ -39,41 +58,51 @@ export function quantize(data: Uint8ClampedArray, k = COLORS, width = 0) {
     });
     return best;
   };
-  let owner = new Array<number>(n).fill(0);
+  let assigned = px.map(nearest);
   for (let iter = 0; iter < 8; iter++) {
-    owner = px.map(nearest);
     const sums = centers.map(() => [0, 0, 0, 0]);
     px.forEach((p, i) => {
-      const s = sums[owner[i]];
+      const s = sums[assigned[i]];
       s[0] += p[0];
       s[1] += p[1];
       s[2] += p[2];
       s[3]++;
     });
     centers = centers.map((c, j) => (sums[j][3] ? [sums[j][0] / sums[j][3], sums[j][1] / sums[j][3], sums[j][2] / sums[j][3]] : c));
+    assigned = px.map(nearest);
   }
   const snap = (v: number) => Math.round(Math.round((v / 255) * 31) * (255 / 31));
   const palette = centers.map((c) => c.map(snap));
-  owner = px.map(nearest);
+
+  // Palette index per pixel; -1 = transparent.
+  let owner = new Array<number>(n).fill(-1);
+  solid.forEach((i, j) => (owner[i] = assigned[j]));
   if (width) {
-    owner = despeckle(owner, width);
-    // Ink: the darker side of a strong edge gets the darkest color, like hand-drawn sprite outlines.
-    const darkest = palette.reduce((best, c, j) => (lum(c as [number, number, number]) < lum(palette[best] as [number, number, number]) ? j : best), 0);
-    const l = owner.map((o) => lum(palette[o] as [number, number, number]));
     const height = n / width;
-    const ink = owner.map((o, i) => {
+    const neighbors = (i: number) => {
       const [x, y] = [i % width, Math.floor(i / width)];
-      const nb = [x > 0 ? i - 1 : -1, x < width - 1 ? i + 1 : -1, y > 0 ? i - width : -1, y < height - 1 ? i + width : -1];
-      return nb.some((j) => j >= 0 && l[j] - l[i] > 130) && l[i] < 70 ? darkest : o;
-    });
-    owner = ink;
+      return [x > 0 ? i - 1 : -1, x < width - 1 ? i + 1 : -1, y > 0 ? i - width : -1, y < height - 1 ? i + width : -1];
+    };
+    owner = despeckle(owner, width);
+    if (ink) {
+      // The darker side of a strong edge gets the darkest color, like hand-drawn sprite outlines.
+      const darkest = palette.reduce((best, c, j) => (lum(c) < lum(palette[best]) ? j : best), 0);
+      const l = owner.map((o) => (o < 0 ? 0 : lum(palette[o])));
+      owner = owner.map((o, i) => (o >= 0 && l[i] < 70 && neighbors(i).some((j) => j >= 0 && owner[j] >= 0 && l[j] - l[i] > 130) ? darkest : o));
+    }
+    if (alpha) {
+      // A dark outline around the shape.
+      const outlined = owner.map((o, i) => (o < 0 && neighbors(i).some((j) => j >= 0 && owner[j] >= 0) ? -2 : o));
+      owner = outlined;
+    }
   }
   for (let i = 0; i < n; i++) {
-    const c = palette[owner[i]];
+    const o = owner[i];
+    const c = o === -2 ? OUTLINE : o >= 0 ? palette[o] : [0, 0, 0];
     data[i * 4] = c[0];
     data[i * 4 + 1] = c[1];
     data[i * 4 + 2] = c[2];
-    data[i * 4 + 3] = 255;
+    data[i * 4 + 3] = o === -1 ? 0 : 255;
   }
   return palette.length;
 }
@@ -82,6 +111,7 @@ export function quantize(data: Uint8ClampedArray, k = COLORS, width = 0) {
  * Pixel art has no stray single pixels: a pixel whose color none of its 4 neighbors share takes the
  * most common color around it (8 neighbors). Two passes.
  */
+const OUT = -1000; // outside the image
 export function despeckle(owner: number[], width: number) {
   const height = owner.length / width;
   let cur = owner;
@@ -92,12 +122,12 @@ export function despeckle(owner: number[], width: number) {
         const i = y * width + x;
         const at = (dx: number, dy: number) => {
           const [nx, ny] = [x + dx, y + dy];
-          return nx >= 0 && nx < width && ny >= 0 && ny < height ? cur[ny * width + nx] : -1;
+          return nx >= 0 && nx < width && ny >= 0 && ny < height ? cur[ny * width + nx] : OUT;
         };
         const four = [at(-1, 0), at(1, 0), at(0, -1), at(0, 1)];
         if (four.includes(cur[i])) continue;
         const counts = new Map<number, number>();
-        for (const v of [...four, at(-1, -1), at(1, -1), at(-1, 1), at(1, 1)]) if (v >= 0) counts.set(v, (counts.get(v) ?? 0) + 1);
+        for (const v of [...four, at(-1, -1), at(1, -1), at(-1, 1), at(1, 1)]) if (v !== OUT) counts.set(v, (counts.get(v) ?? 0) + 1);
         next[i] = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? cur[i];
       }
     }
@@ -138,7 +168,7 @@ export function championPixelArt(id: string): Promise<HTMLCanvasElement | null> 
         o.imageSmoothingQuality = 'high';
         o.drawImage(mid, 0, 0, ART_W, ART_H);
         const pixels = o.getImageData(0, 0, ART_W, ART_H);
-        quantize(pixels.data, COLORS, ART_W);
+        quantize(pixels.data, { width: ART_W, ink: true });
         o.putImageData(pixels, 0, 0);
         return out;
       })

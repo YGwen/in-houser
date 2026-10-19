@@ -1,0 +1,860 @@
+{
+  "base": "https://raw.communitydragon.org/latest/game/assets/characters/",
+  "models": {
+    "Aatrox": {
+      "folder": "aatrox",
+      "skn": "aatrox.skn",
+      "tex": "aatrox_base_tx_cm.png"
+    },
+    "Ahri": {
+      "folder": "ahri",
+      "skn": "ahri_base.skn",
+      "tex": "ahri_base_tx_cm.png"
+    },
+    "Akali": {
+      "folder": "akali",
+      "skn": "akali.skn",
+      "tex": "akali_base_tx_cm.png"
+    },
+    "Akshan": {
+      "folder": "akshan",
+      "skn": "akshan_base.skn",
+      "tex": "akshan_base_tx_cm.png"
+    },
+    "Alistar": {
+      "folder": "alistar",
+      "skn": "alistar.skn",
+      "tex": "alistar_base_tx_cm.png"
+    },
+    "Ambessa": {
+      "folder": "ambessa",
+      "skn": "ambessa_base.skn",
+      "tex": "ambessa_base_tx_cm.png"
+    },
+    "Amumu": {
+      "folder": "amumu",
+      "skn": "amumu.skn",
+      "tex": "sadmummy.png"
+    },
+    "Anivia": {
+      "folder": "anivia",
+      "skn": "anivia.skn",
+      "tex": "cryophoenix.png"
+    },
+    "Annie": {
+      "folder": "annie",
+      "skn": "annie_2012.skn",
+      "tex": "annie_base_2012_cm.png"
+    },
+    "Aphelios": {
+      "folder": "aphelios",
+      "skn": "aphelios.skn",
+      "tex": "aphelios_base_tx_cm.png"
+    },
+    "Ashe": {
+      "folder": "ashe",
+      "skn": "ashe.skn",
+      "tex": "ashe_base_2011_tx_cm.png"
+    },
+    "AurelionSol": {
+      "folder": "aurelionsol",
+      "skn": "aurelionsol.skn",
+      "tex": "aurelionsol_body_tx_cm.png"
+    },
+    "Aurora": {
+      "folder": "aurora",
+      "skn": "aurora_base.skn",
+      "tex": "aurora_base_tx_cm.png"
+    },
+    "Azir": {
+      "folder": "azir",
+      "skn": "azir.skn",
+      "tex": "azir_base_tx_cm.png"
+    },
+    "Bard": {
+      "folder": "bard",
+      "skn": "bard.skn",
+      "tex": "bard_base_tx_cm.png"
+    },
+    "Belveth": {
+      "folder": "belveth",
+      "skn": "belveth_base.skn",
+      "tex": "belveth_base_main_tx.png"
+    },
+    "Blitzcrank": {
+      "folder": "blitzcrank",
+      "skn": "blitzcrank.skn",
+      "tex": "steamgolem.png"
+    },
+    "Brand": {
+      "folder": "brand",
+      "skn": "brand.skn",
+      "tex": "brand_base_tx_cm.png"
+    },
+    "Braum": {
+      "folder": "braum",
+      "skn": "braum_base.skn",
+      "tex": "braum_base_tx_cm.png"
+    },
+    "Briar": {
+      "folder": "briar",
+      "skn": "briar_base.skn",
+      "tex": "briar_base_tx_cm.png"
+    },
+    "Caitlyn": {
+      "folder": "caitlyn",
+      "skn": "caitlyn_base.skn",
+      "tex": "caitlyn_base_tx_cm.png"
+    },
+    "Camille": {
+      "folder": "camille",
+      "skn": "camille.skn",
+      "tex": "camille_base_tx_cm.png"
+    },
+    "Cassiopeia": {
+      "folder": "cassiopeia",
+      "skn": "cassiopeia.skn",
+      "tex": "cassiopeia_base_tx_cm.png"
+    },
+    "Chogath": {
+      "folder": "chogath",
+      "skn": "chogath.skn",
+      "tex": "greenterror.png"
+    },
+    "Corki": {
+      "folder": "corki",
+      "skn": "corki.skn",
+      "tex": "corki.png"
+    },
+    "Darius": {
+      "folder": "darius",
+      "skn": "darius.skn",
+      "tex": "darius_base_tx_cm.png"
+    },
+    "Diana": {
+      "folder": "diana",
+      "skn": "diana.skn",
+      "tex": "diana_base_tx_cm.png"
+    },
+    "Draven": {
+      "folder": "draven",
+      "skn": "draven.skn",
+      "tex": "draven_base_tx_cm.png"
+    },
+    "DrMundo": {
+      "folder": "drmundo",
+      "skn": "drmundo_base.skn",
+      "tex": "drmundo_base_tx_cm.png"
+    },
+    "Ekko": {
+      "folder": "ekko",
+      "skn": "ekko.skn",
+      "tex": "ekko_base_tx_cm.png"
+    },
+    "Elise": {
+      "folder": "elise",
+      "skn": "elise.skn",
+      "tex": "elise_base_proxy_tx_cm.png"
+    },
+    "Evelynn": {
+      "folder": "evelynn",
+      "skn": "evelynn.skn",
+      "tex": "evelynn_base_cm_tx3_shade.png"
+    },
+    "Ezreal": {
+      "folder": "ezreal",
+      "skn": "ezreal_base.skn",
+      "tex": "ezreal_base_tx_cm.png"
+    },
+    "Fiddlesticks": {
+      "folder": "fiddlesticks",
+      "skn": "fiddlesticks_base.skn",
+      "tex": "fiddlesticks_base_body_tx_cm.png"
+    },
+    "Fiora": {
+      "folder": "fiora",
+      "skn": "fiora.skn",
+      "tex": "fiora_base_tx_cm.png"
+    },
+    "Fizz": {
+      "folder": "fizz",
+      "skn": "fizz.skn",
+      "tex": "fizz_base_tx_cm.png"
+    },
+    "Galio": {
+      "folder": "galio",
+      "skn": "galio.skn",
+      "tex": "galio_base_cm_tx.png"
+    },
+    "Gangplank": {
+      "folder": "gangplank",
+      "skn": "gangplank.skn",
+      "tex": "gangplank_base_tx_cm.png"
+    },
+    "Garen": {
+      "folder": "garen",
+      "skn": "garen.skn",
+      "tex": "garen_base_tx_cm.png"
+    },
+    "Gnar": {
+      "folder": "gnar",
+      "skn": "gnar.skn",
+      "tex": "gnar_base_tx_cm.png"
+    },
+    "Gragas": {
+      "folder": "gragas",
+      "skn": "gragas.skn",
+      "tex": "gragas.png"
+    },
+    "Graves": {
+      "folder": "graves",
+      "skn": "graves.skn",
+      "tex": "graves.png"
+    },
+    "Gwen": {
+      "folder": "gwen",
+      "skn": "gwen_base.skn",
+      "tex": "gwen_base_main_doll_tx_cm.png"
+    },
+    "Hecarim": {
+      "folder": "hecarim",
+      "skn": "hecarim.skn",
+      "tex": "hecarim_base_tx_cm.png"
+    },
+    "Heimerdinger": {
+      "folder": "heimerdinger",
+      "skn": "heimerdinger.skn",
+      "tex": "heimerdinger_base_tx_cm.png"
+    },
+    "Hwei": {
+      "folder": "hwei",
+      "skn": "hwei_base.skn",
+      "tex": "hwei_base_tx_cm.png"
+    },
+    "Illaoi": {
+      "folder": "illaoi",
+      "skn": "illaoi.skn",
+      "tex": "illaoi_base_tx_cm.png"
+    },
+    "Irelia": {
+      "folder": "irelia",
+      "skn": "irelia_base.skn",
+      "tex": "irelia_base_tx_cm.png"
+    },
+    "Ivern": {
+      "folder": "ivern",
+      "skn": "ivern_base.skn",
+      "tex": "ivern_base_tx_cm.png"
+    },
+    "Janna": {
+      "folder": "janna",
+      "skn": "janna.skn",
+      "tex": "janna_base_tx_cm.png"
+    },
+    "JarvanIV": {
+      "folder": "jarvaniv",
+      "skn": "jarvaniv.skn",
+      "tex": "jarvaniv_base_tx_cm.png"
+    },
+    "Jax": {
+      "folder": "jax",
+      "skn": "jax_base.skn",
+      "tex": "jax_base_body_tx_cm.png"
+    },
+    "Jayce": {
+      "folder": "jayce",
+      "skn": "jayce.skn",
+      "tex": "jayce_base_melee_tx_cm.png"
+    },
+    "Jhin": {
+      "folder": "jhin",
+      "skn": "jhin.skn",
+      "tex": "jhin_base_tx_cm.png"
+    },
+    "Jinx": {
+      "folder": "jinx",
+      "skn": "jinx.skn",
+      "tex": "jinx_base_tx_cm.png"
+    },
+    "Kaisa": {
+      "folder": "kaisa",
+      "skn": "kaisa_base.skn",
+      "tex": "kaisa_base_tx_cm.png"
+    },
+    "Kalista": {
+      "folder": "kalista",
+      "skn": "kalista.skn",
+      "tex": "kalista_base_tx_cm.png"
+    },
+    "Karma": {
+      "folder": "karma",
+      "skn": "karma_2012.skn",
+      "tex": "karma_base_2012_cm.png"
+    },
+    "Karthus": {
+      "folder": "karthus",
+      "skn": "karthus.skn",
+      "tex": "karthus_base_tx_cm.png"
+    },
+    "Kassadin": {
+      "folder": "kassadin",
+      "skn": "kassadin.skn",
+      "tex": "kassadin_base_tx_cm.png"
+    },
+    "Katarina": {
+      "folder": "katarina",
+      "skn": "katarina.skn",
+      "tex": "katarina_base_2012_tx_cm.png"
+    },
+    "Kayle": {
+      "folder": "kayle",
+      "skn": "kayle.skn",
+      "tex": "kayle_base_tx_cm.png"
+    },
+    "Kayn": {
+      "folder": "kayn",
+      "skn": "kayn.skn",
+      "tex": "kayn_base_tx_cm.png"
+    },
+    "Kennen": {
+      "folder": "kennen",
+      "skn": "kennen.skn",
+      "tex": "kennen.png"
+    },
+    "Khazix": {
+      "folder": "khazix",
+      "skn": "khazix_base.skn",
+      "tex": "khazix_base_cm_tx.png"
+    },
+    "Kindred": {
+      "folder": "kindred",
+      "skn": "kindred_base.skn",
+      "tex": "kindred_base_tx_cm.png"
+    },
+    "Kled": {
+      "folder": "kled",
+      "skn": "kled.skn",
+      "tex": "kledmount_base_tx_cm.png"
+    },
+    "KogMaw": {
+      "folder": "kogmaw",
+      "skn": "kogmaw.skn",
+      "tex": "kogmaw_base_tx_cm.png"
+    },
+    "KSante": {
+      "folder": "ksante",
+      "skn": "ksante.skn",
+      "tex": "ksante_base_tx_cm.png"
+    },
+    "Leblanc": {
+      "folder": "leblanc",
+      "skn": "leblanc_base.skn",
+      "tex": "leblanc_base_tx_cm.png"
+    },
+    "LeeSin": {
+      "folder": "leesin",
+      "skn": "leesin_base.skn",
+      "tex": "leesin_base_tx_cm.png"
+    },
+    "Leona": {
+      "folder": "leona",
+      "skn": "leona.skn",
+      "tex": "leona_base_tx_cm.png"
+    },
+    "Lillia": {
+      "folder": "lillia",
+      "skn": "lillia_base.skn",
+      "tex": "lillia_base_bird_tx_cm.png"
+    },
+    "Lissandra": {
+      "folder": "lissandra",
+      "skn": "lissandra.skn",
+      "tex": "lissandra_base_tx_cm.png"
+    },
+    "Locke": {
+      "folder": "locke",
+      "skn": "locke_base.skn",
+      "tex": "locke_base_hair_tx_cm.png"
+    },
+    "Lucian": {
+      "folder": "lucian",
+      "skn": "lucian_base.skn",
+      "tex": "lucian_base_tx_cm.png"
+    },
+    "Lulu": {
+      "folder": "lulu",
+      "skn": "lulu.skn",
+      "tex": "lulu_base_tx_cm.png"
+    },
+    "Lux": {
+      "folder": "lux",
+      "skn": "lux.skn",
+      "tex": "lux_base_cm_tx.png"
+    },
+    "Malphite": {
+      "folder": "malphite",
+      "skn": "malphite.skn",
+      "tex": "malphite.png"
+    },
+    "Malzahar": {
+      "folder": "malzahar",
+      "skn": "malzahar.skn",
+      "tex": "malzahar_tx_cm.png"
+    },
+    "Maokai": {
+      "folder": "maokai",
+      "skn": "maokai.skn",
+      "tex": "maokai_base_2014_tx_cm.png"
+    },
+    "MasterYi": {
+      "folder": "masteryi",
+      "skn": "masteryi.skn",
+      "tex": "masteryi_2013_tx_cm.png"
+    },
+    "Mel": {
+      "folder": "mel",
+      "skn": "mel_base.skn",
+      "tex": "mel_base_tx_cm.png"
+    },
+    "Milio": {
+      "folder": "milio",
+      "skn": "milio_base.skn",
+      "tex": "milio_base_tx_cm.png"
+    },
+    "MissFortune": {
+      "folder": "missfortune",
+      "skn": "missfortune.skn",
+      "tex": "missfortune_base_tx_cm.png"
+    },
+    "MonkeyKing": {
+      "folder": "monkeyking",
+      "skn": "monkeyking.skn",
+      "tex": "monkeyking_base_tx_cm_v02.png"
+    },
+    "Mordekaiser": {
+      "folder": "mordekaiser",
+      "skn": "mordekaiser_base.skn",
+      "tex": "mordekaiser_base_tx_cm.png"
+    },
+    "Morgana": {
+      "folder": "morgana",
+      "skn": "morgana.skn",
+      "tex": "morgana_base_tx_cm.png"
+    },
+    "Naafiri": {
+      "folder": "naafiri",
+      "skn": "naafiri_base.skn",
+      "tex": "naafiri_base_main_tx_cm.png"
+    },
+    "Nami": {
+      "folder": "nami",
+      "skn": "nami.skn",
+      "tex": "nami_base_tx_cm.png"
+    },
+    "Nasus": {
+      "folder": "nasus",
+      "skn": "nasus.skn",
+      "tex": "nasus.png"
+    },
+    "Nautilus": {
+      "folder": "nautilus",
+      "skn": "nautilus.skn",
+      "tex": "nautilus_base_tx_cm.png"
+    },
+    "Neeko": {
+      "folder": "neeko",
+      "skn": "neeko_base.skn",
+      "tex": "neeko_base_tx_cm.png"
+    },
+    "Nidalee": {
+      "folder": "nidalee",
+      "skn": "nidalee2012.skn",
+      "tex": "nidalee_base_2012_tx_cm.png"
+    },
+    "Nilah": {
+      "folder": "nilah",
+      "skn": "nilah_base.skn",
+      "tex": "nilah_base_tx_cm.png"
+    },
+    "Nocturne": {
+      "folder": "nocturne",
+      "skn": "nocturne.skn",
+      "tex": "nocturne_base_tx_cm.png"
+    },
+    "Nunu": {
+      "folder": "nunu",
+      "skn": "nunu.skn",
+      "tex": "nunu_base_tx_cm.png"
+    },
+    "Olaf": {
+      "folder": "olaf",
+      "skn": "olaf.skn",
+      "tex": "olaf.png"
+    },
+    "Ornn": {
+      "folder": "ornn",
+      "skn": "ornn.skn",
+      "tex": "ornn_base_tx_cm.png"
+    },
+    "Pantheon": {
+      "folder": "pantheon",
+      "skn": "pantheon_base.skn",
+      "tex": "pantheon_base_tx_cm.png"
+    },
+    "Poppy": {
+      "folder": "poppy",
+      "skn": "poppy.skn",
+      "tex": "poppy_base_tx_cm.png"
+    },
+    "Pyke": {
+      "folder": "pyke",
+      "skn": "pyke_base.skn",
+      "tex": "pyke_base_tx_cm.png"
+    },
+    "Qiyana": {
+      "folder": "qiyana",
+      "skn": "qiyana.skn",
+      "tex": "qiyana_base_tx_cm.png"
+    },
+    "Quinn": {
+      "folder": "quinn",
+      "skn": "quinn_base.skn",
+      "tex": "quinn_base_tx_cm.png"
+    },
+    "Rakan": {
+      "folder": "rakan",
+      "skn": "rakan_base.skn",
+      "tex": "rakan_base_tx_cm.png"
+    },
+    "Rammus": {
+      "folder": "rammus",
+      "skn": "rammus.skn",
+      "tex": "armordillo.png"
+    },
+    "RekSai": {
+      "folder": "reksai",
+      "skn": "reksai.skn",
+      "tex": "reksai_base_tx_cm.png"
+    },
+    "Rell": {
+      "folder": "rell",
+      "skn": "rell_base.skn",
+      "tex": "rell_base_tx_cm.png"
+    },
+    "Renata": {
+      "folder": "renata",
+      "skn": "renata_base.skn",
+      "tex": "renata_base_body_tx_cm.png"
+    },
+    "Renekton": {
+      "folder": "renekton",
+      "skn": "renekton.skn",
+      "tex": "renekton_base_tx_cm.png"
+    },
+    "Rengar": {
+      "folder": "rengar",
+      "skn": "rengar_base.skn",
+      "tex": "rengar_base_tx_cm.png"
+    },
+    "Riven": {
+      "folder": "riven",
+      "skn": "riven.skn",
+      "tex": "riven_base_tx_cm.png"
+    },
+    "Rumble": {
+      "folder": "rumble",
+      "skn": "rumble.skn",
+      "tex": "rumble_base_tx_cm.png"
+    },
+    "Ryze": {
+      "folder": "ryze",
+      "skn": "ryze.skn",
+      "tex": "ryze.png"
+    },
+    "Samira": {
+      "folder": "samira",
+      "skn": "samira_base.skn",
+      "tex": "samira_base_tx_cm.png"
+    },
+    "Sejuani": {
+      "folder": "sejuani",
+      "skn": "sejuani.skn",
+      "tex": "sejuani_base_tx_cm.png"
+    },
+    "Senna": {
+      "folder": "senna",
+      "skn": "senna_base.skn",
+      "tex": "senna_base_body_tx_cm.png"
+    },
+    "Seraphine": {
+      "folder": "seraphine",
+      "skn": "seraphine_base.skn",
+      "tex": "seraphine_base_body_tx_cm.png"
+    },
+    "Sett": {
+      "folder": "sett",
+      "skn": "sett.skn",
+      "tex": "sett_base_tx_cm.png"
+    },
+    "Shaco": {
+      "folder": "shaco",
+      "skn": "shaco.skn",
+      "tex": "jester.png"
+    },
+    "Shen": {
+      "folder": "shen",
+      "skn": "shen.skn",
+      "tex": "shen_base_tx_cm.png"
+    },
+    "Shyvana": {
+      "folder": "shyvana",
+      "skn": "shyvana_base.skn",
+      "tex": "shyvana_base_tx_cm.png"
+    },
+    "Singed": {
+      "folder": "singed",
+      "skn": "singed.skn",
+      "tex": "singed_tx_cm.png"
+    },
+    "Sion": {
+      "folder": "sion",
+      "skn": "sion.skn",
+      "tex": "sion_base_tx_cm.png"
+    },
+    "Sivir": {
+      "folder": "sivir",
+      "skn": "sivir.skn",
+      "tex": "sivir.png"
+    },
+    "Skarner": {
+      "folder": "skarner",
+      "skn": "skarner_rework_base.skn",
+      "tex": "skarner_base_additivescrolltexture_tx_cm.png"
+    },
+    "Smolder": {
+      "folder": "smolder",
+      "skn": "smolder_base.skn",
+      "tex": "smolder_base_tx_cm.png"
+    },
+    "Sona": {
+      "folder": "sona",
+      "skn": "sona.skn",
+      "tex": "sona_base_tx_cm.png"
+    },
+    "Soraka": {
+      "folder": "soraka",
+      "skn": "soraka.skn",
+      "tex": "soraka_base_tx_cm.png"
+    },
+    "Swain": {
+      "folder": "swain",
+      "skn": "swain.skn",
+      "tex": "swain_base_tx_cm.png"
+    },
+    "Sylas": {
+      "folder": "sylas",
+      "skn": "sylas_base.skn",
+      "tex": "sylas_base_tx_cm.png"
+    },
+    "Syndra": {
+      "folder": "syndra",
+      "skn": "syndra.skn",
+      "tex": "syndra_base_tx_cm.png"
+    },
+    "TahmKench": {
+      "folder": "tahmkench",
+      "skn": "tahmkench_base.skn",
+      "tex": "tahmkench_base_tx_cm.png"
+    },
+    "Taliyah": {
+      "folder": "taliyah",
+      "skn": "taliyah_base.skn",
+      "tex": "taliyah_base_tx_cm.png"
+    },
+    "Talon": {
+      "folder": "talon",
+      "skn": "talon.skn",
+      "tex": "talon_base_tx_cm.png"
+    },
+    "Taric": {
+      "folder": "taric",
+      "skn": "taric.skn",
+      "tex": "taric_base_tx_cm.png"
+    },
+    "Teemo": {
+      "folder": "teemo",
+      "skn": "teemo_base.skn",
+      "tex": "teemo_base_tx_cm.png"
+    },
+    "Thresh": {
+      "folder": "thresh",
+      "skn": "thresh.skn",
+      "tex": "thresh_base_tx_cm.png"
+    },
+    "Tristana": {
+      "folder": "tristana",
+      "skn": "tristana.skn",
+      "tex": "tristana_tx_cm.png"
+    },
+    "Trundle": {
+      "folder": "trundle",
+      "skn": "trundle.skn",
+      "tex": "trundle_base_tx_cm.png"
+    },
+    "Tryndamere": {
+      "folder": "tryndamere",
+      "skn": "tryndamere.skn",
+      "tex": "tryndamere_base2011_tx_cm.png"
+    },
+    "TwistedFate": {
+      "folder": "twistedfate",
+      "skn": "twistedfate2012.skn",
+      "tex": "twistedfate_base_2012_cm.png"
+    },
+    "Twitch": {
+      "folder": "twitch",
+      "skn": "twitch.skn",
+      "tex": "twitch_base_tx_cm.png"
+    },
+    "Udyr": {
+      "folder": "udyr",
+      "skn": "udyr_base.skn",
+      "tex": "udyr_base_main_notattoo_tx_cm.png"
+    },
+    "Urgot": {
+      "folder": "urgot",
+      "skn": "urgot_base.skn",
+      "tex": "urgot_base.png"
+    },
+    "Varus": {
+      "folder": "varus",
+      "skn": "varus.skn",
+      "tex": "varus_base_tx_cm.png"
+    },
+    "Vayne": {
+      "folder": "vayne",
+      "skn": "vayne.skn",
+      "tex": "vayne_base_tx_cm.png"
+    },
+    "Veigar": {
+      "folder": "veigar",
+      "skn": "veigar.skn",
+      "tex": "veigar_turnaround_b.png"
+    },
+    "Velkoz": {
+      "folder": "velkoz",
+      "skn": "velkoz_base.skn",
+      "tex": "velkoz_base.png"
+    },
+    "Vex": {
+      "folder": "vex",
+      "skn": "vex_base.skn",
+      "tex": "vex_main_tx_cm.png"
+    },
+    "Vi": {
+      "folder": "vi",
+      "skn": "vi_base.skn",
+      "tex": "vi_tx_cm.png"
+    },
+    "Viego": {
+      "folder": "viego",
+      "skn": "viego_base.skn",
+      "tex": "viego_base_body_tx_cm.png"
+    },
+    "Viktor": {
+      "folder": "viktor",
+      "skn": "viktor_base.skn",
+      "tex": "viktor_base_tx_cm.png"
+    },
+    "Vladimir": {
+      "folder": "vladimir",
+      "skn": "vladimir.skn",
+      "tex": "vladimir_base_tx_cm.png"
+    },
+    "Volibear": {
+      "folder": "volibear",
+      "skn": "volibear_base.skn",
+      "tex": "volibear_base_tx_cm.png"
+    },
+    "Warwick": {
+      "folder": "warwick",
+      "skn": "warwick.skn",
+      "tex": "warwick_base_cm_tx.png"
+    },
+    "Xayah": {
+      "folder": "xayah",
+      "skn": "xayah_base.skn",
+      "tex": "xayah_base_tx_cm.png"
+    },
+    "Xerath": {
+      "folder": "xerath",
+      "skn": "xerath.skn",
+      "tex": "xerath_base_tx_cm.png"
+    },
+    "XinZhao": {
+      "folder": "xinzhao",
+      "skn": "xinzhaorework_base.skn",
+      "tex": "xinzhaorework_base_tx_cm.png"
+    },
+    "Yasuo": {
+      "folder": "yasuo",
+      "skn": "yasuo.skn",
+      "tex": "yasuo_base_tx_cm.png"
+    },
+    "Yone": {
+      "folder": "yone",
+      "skn": "yone_base.skn",
+      "tex": "yone_base_tx_cm.png"
+    },
+    "Yorick": {
+      "folder": "yorick",
+      "skn": "yorick.skn",
+      "tex": "yorick1_base_cm_tx.png"
+    },
+    "Yunara": {
+      "folder": "yunara",
+      "skn": "yunara_base.skn",
+      "tex": "yunara_base_tx_cm.png"
+    },
+    "Yuumi": {
+      "folder": "yuumi",
+      "skn": "yuumi_base.skn",
+      "tex": "yuumi_base_joke_tx_cm.png"
+    },
+    "Zaahen": {
+      "folder": "zaahen",
+      "skn": "zaahen_base.skn",
+      "tex": "zaahen_base_tx_cm.png"
+    },
+    "Zac": {
+      "folder": "zac",
+      "skn": "zac_base.skn",
+      "tex": "zac_base_tx_cm.png"
+    },
+    "Zed": {
+      "folder": "zed",
+      "skn": "zed.skn",
+      "tex": "zed_base_tx_cm.png"
+    },
+    "Zeri": {
+      "folder": "zeri",
+      "skn": "zeri_base.skn",
+      "tex": "zeri_base_tx_cm.png"
+    },
+    "Ziggs": {
+      "folder": "ziggs",
+      "skn": "ziggs.skn",
+      "tex": "ziggs_base_tx_cm.png"
+    },
+    "Zilean": {
+      "folder": "zilean",
+      "skn": "zilean.skn",
+      "tex": "chronokeeper.png"
+    },
+    "Zoe": {
+      "folder": "zoe",
+      "skn": "zoe_base.skn",
+      "tex": "zoe_base_tx_cm.png"
+    }
+  }
+}

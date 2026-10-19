@@ -1099,7 +1099,14 @@ select:disabled {
   border: 3px solid var(--side, #fff);
   box-shadow: 0 0 0 3px #000, 6px 6px 0 3px rgba(0, 0, 0, 0.5);
   background: #000;
-  animation: portrait-idle 0.84s steps(1) infinite;
+}
+/* Still fighters (3D model renders and portraits) move as a whole: idle bob, lunge, recoil, hit flash. */
+.pixel-fighter.still {
+  animation: still-idle 0.84s steps(1) infinite;
+}
+.pixel-fighter.model {
+  width: clamp(130px, 19vw, 240px);
+  aspect-ratio: 96 / 128;
 }
 .pixel-fighter.portrait.blue {
   --side: #3d8bff;
@@ -1110,16 +1117,16 @@ select:disabled {
 .pixel-fighter.portrait canvas {
   filter: none;
 }
-.pixel-fighter.portrait.attack {
+.pixel-fighter.still.attack {
   animation: fighter-lunge 0.6s steps(12) both;
 }
-.pixel-fighter.portrait.parry {
+.pixel-fighter.still.parry {
   animation: fighter-recoil 0.6s steps(12) both;
 }
-.pixel-fighter.portrait.parry canvas {
+.pixel-fighter.still.parry canvas {
   animation: hit-flash 0.24s 0.16s steps(2) both;
 }
-@keyframes portrait-idle {
+@keyframes still-idle {
   50% {
     transform: translateY(-3px);
   }
@@ -1136,10 +1143,13 @@ select:disabled {
   .pixel-fighter.portrait {
     width: clamp(80px, 26vw, 110px);
   }
+  .pixel-fighter.model {
+    width: clamp(96px, 30vw, 130px);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pixel-fighter.portrait,
-  .pixel-fighter.portrait.parry canvas {
+  .pixel-fighter.still,
+  .pixel-fighter.still.parry canvas {
     animation: none;
   }
 }
