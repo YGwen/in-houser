@@ -1,8 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
-import { playMusic } from '../audio/music';
-import { REVEAL_TRACK } from '../audio/tracks';
-import { duelSting, vsHit, whoosh } from '../audio/sfx';
+import { startMusic, stopMusic } from '../audio/music';
+import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, ROLE_LABELS, type Player, type Role, type TeamResult } from '../types';
 import ChampionTag from './ChampionTag';
 
@@ -77,14 +76,15 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
   onDoneRef.current = onDone;
   const done = useCallback(() => onDoneRef.current(), []);
 
-  // The music (Player Select) comes from the setup screen and keeps playing; see App.
   useEffect(() => {
+    startMusic();
     preloadVoice([
       VERSUS,
       DUEL,
       FIGHT,
       ...ROLES.flatMap((r) => [laneLine(r), nameLine(result.blue[r]), nameLine(result.red[r])]),
     ]);
+    return () => stopMusic();
   }, [result]);
 
   // Sound + auto-advance for the current card.
@@ -105,8 +105,8 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
 
     void (async () => {
       if (isFight) {
-        // VS jingle, then Player Select again under the recap.
-        playMusic(REVEAL_TRACK);
+        // The music keeps playing under the recap; it fades out when the reveal closes.
+        fightJingle();
         await wait(0.3);
         await Promise.all([announce(FIGHT), wait(FIGHT_HOLD)]);
         show(1); // recap

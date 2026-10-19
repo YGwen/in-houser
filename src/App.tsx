@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { setAnnouncerEnabled, stopAnnouncer } from './audio/announcer';
 import { audio, setMuted } from './audio/engine';
-import { playMusic } from './audio/music';
-import { MENU_TRACK } from './audio/tracks';
 import DuelPanel from './components/DuelPanel';
 import HistoryPanel from './components/HistoryPanel';
 import RevealScreen from './components/RevealScreen';
@@ -51,25 +49,6 @@ export default function App() {
   }, [muted]);
   useEffect(() => setAnnouncerEnabled(announcer), [announcer]);
 
-  // Player Select, like a fighting game's character select: it plays on the setup screen and keeps going
-  // through the reveal (which switches to the VS jingle on FIGHT!). Browsers only allow sound after a
-  // user gesture, so it starts on the first click/keypress. After the reveal it comes back if needed.
-  const [soundUnlocked, setSoundUnlocked] = useState(false);
-  useEffect(() => {
-    const unlock = () => setSoundUnlocked(true);
-    window.addEventListener('pointerdown', unlock, { once: true });
-    window.addEventListener('keydown', unlock, { once: true });
-    return () => {
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
-    };
-  }, []);
-  useEffect(() => {
-    if (!soundUnlocked) return;
-    audio();
-    playMusic(MENU_TRACK);
-  }, [soundUnlocked, revealing]);
-
   // Drop duels whose players were removed or are no longer playing tonight.
   const updatePlayers = (next: Player[]) => {
     setPlayers(next);
@@ -108,14 +87,6 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <button
-          className="btn icon sound-toggle"
-          onClick={() => setMutedState((m) => !m)}
-          title={muted ? 'Turn sound on' : 'Mute music and sounds'}
-          aria-pressed={!muted}
-        >
-          {muted ? '🔇' : '🔊'}
-        </button>
         <h1>
           IN<span>-</span>HOUSER
         </h1>

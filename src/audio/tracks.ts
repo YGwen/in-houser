@@ -24,26 +24,7 @@ export interface Track {
   stabs?: number[];
 }
 
-/** A recorded track: an audio file (in public/) played on a loop instead of the synthesizer. */
-export interface FileTrack {
-  id: string;
-  name: string;
-  description: string;
-  /** Path under public/, e.g. "music/my-track.mp3". */
-  file: string;
-  /** Volume relative to the synthesized tracks (1 = unchanged). */
-  gain?: number;
-  /** false = play once (a jingle). Default: loop. */
-  loop?: boolean;
-  /** Track to continue with after a one-shot file ends. */
-  then?: string;
-  /** Synthesized track to play instead if the file isn't there (e.g. not committed, so not on the live site). */
-  fallback: string;
-}
-
-export const isFileTrack = (t: Track | FileTrack): t is FileTrack => 'file' in t;
-
-export const TRACKS: (Track | FileTrack)[] = [
+export const TRACKS: Track[] = [
   {
     id: 'arena',
     name: 'Arena',
@@ -287,30 +268,8 @@ export const TRACKS: (Track | FileTrack)[] = [
     leadVoice: 'brass',
     stabs: [6, 14],
   },
-  {
-    id: 'sf2-select',
-    name: 'Player Select (SF2 Turbo)',
-    description: 'Recorded track, loops on the setup screen and under the reveal. File public/music/03. Player Select.mp3 (falls back to Arena)',
-    file: 'music/03. Player Select.mp3',
-    gain: 1.2,
-    fallback: 'arena',
-  },
-  {
-    id: 'sf2-vs',
-    name: 'VS (SF2 Turbo) → Player Select',
-    description: 'Recorded 4.5 s VS jingle on the FIGHT! screen, then Player Select again. File public/music/04. VS..mp3',
-    file: 'music/04. VS..mp3',
-    gain: 1.4,
-    loop: false,
-    then: 'sf2-select',
-    fallback: 'sf2-select', // jingle missing: keep the theme going
-  },
 ];
 
 export const DEFAULT_TRACK = 'arena';
-
-/** Music on the setup screen and through the reveal, and the jingle on the FIGHT! screen. */
-export const MENU_TRACK = 'sf2-select';
-export const REVEAL_TRACK = 'sf2-vs';
 
 export const trackById = (id: string) => TRACKS.find((t) => t.id === id) ?? TRACKS[0];

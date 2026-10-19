@@ -44,15 +44,8 @@ select {
 }
 
 .app-header {
-  position: relative;
   text-align: center;
   margin-bottom: 24px;
-}
-.sound-toggle {
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 18px;
 }
 .app-header h1 {
   font-family: var(--pixel);
