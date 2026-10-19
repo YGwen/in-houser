@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>In-Houser · Voice lab</title>
+    <style>
+      :root { color-scheme: dark; }
+      body { margin: 0; background: #0b0f1a; color: #e8ecf6; font-family: Inter, system-ui, sans-serif; }
+      main { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; }
+      h1 { color: #f0d48a; margin: 0 0 4px; }
+      h2 { color: #c8aa6e; margin: 32px 0 6px; }
+      p.hint { color: #8b94ad; margin: 0 0 14px; }
+      .voice { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center;
+               background: #141a2a; border: 1px solid #2a3452; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+      .voice.current { border-color: #c8aa6e; }
+      .num { font: 800 22px Inter, sans-serif; color: #f0d48a; text-align: center; }
+      .label b { display: block; }
+      .label small { color: #8b94ad; }
+      .lines { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+      .lines button { font-size: 11px; padding: 3px 7px; }
+      .actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+      button { background: #1b2338; color: #e8ecf6; border: 1px solid #2a3452; border-radius: 6px; padding: 7px 12px; cursor: pointer; font: inherit; }
+      button:hover { border-color: #c8aa6e; }
+      button.primary { background: linear-gradient(180deg, #d9b56a, #9c7a3c); color: #1a1206; font-weight: 700; border-color: #e7c983; }
+      .playing { outline: 2px solid #f0d48a; }
+      .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; color: #8b94ad; }
+      @media (max-width: 600px) { .voice { grid-template-columns: 36px 1fr; } .actions { grid-column: 1 / -1; justify-content: flex-start; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Announcer voice lab</h1>
+      <h2>Player names (current announcer)</h2>
+      <p class="hint">
+        Every player's name as the announcer says it now, with the spelling used (<code>say:</code> in players.yaml). Tell me
+        which ones sound wrong and how they should sound.
+      </p>
+      <div id="names"></div>
+      <p class="hint">
+        Each voice says the same lines: "Top lane! ToLLL! Versus! Balwé! Duel! Fight!". Listen with sound on and tell me the
+        number you prefer.
+      </p>
+      <div class="toolbar"><button id="stop">■ Stop</button></div>
+
+      <h2>Pre-recorded female voices (Piper)</h2>
+      <p class="hint">
+        Same sound on every device, and they go through the arena effect (deeper, echo, grit). "Raw" plays the voice with no
+        effect.
+      </p>
+      <div id="piper"></div>
+      <details>
+        <summary style="cursor: pointer; color: #8b94ad; margin: 10px 0">Male voices from before (the gold border is the current voice)</summary>
+        <div id="piper-male"></div>
+      </details>
+
+      <h2>Live voices (from your browser, female first)</h2>
+      <p class="hint">
+        Generated at play time by this browser: any new player's name works instantly, but these can't get the arena effect,
+        and other devices/browsers will have different voices. "Announcer" plays it lower and slower, like the app does.
+      </p>
+      <div id="live"></div>
+    </main>
+    <script type="module" src="/src/voiceLab.ts"></script>
+  </body>
+</html>
