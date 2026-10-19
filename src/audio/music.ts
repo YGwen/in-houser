@@ -105,34 +105,43 @@ function loadFile(file: string) {
 
 function startFile(t: FileTrack, bus: GainNode) {
   void loadFile(t.file).then((buffer) => {
-    if (!buffer || !playing || busGain !== bus) return; // stopped (or switched) while loading
+    if (!playing || busGain !== bus) return; // stopped (or switched) while loading
+    if (!buffer) {
+      startOnBus(trackById(t.fallback), bus); // file missing (e.g. live site): use the built-in track
+      return;
+    }
     const { ctx } = audio();
     const src = ctx.createBufferSource();
     src.buffer = buffer;
-    src.loop = true;
+    src.loop = t.loop ?? true;
     const level = ctx.createGain();
     level.gain.value = t.gain ?? 1;
     src.connect(level).connect(bus);
+    if (!src.loop && t.then) {
+      const next = trackById(t.then);
+      src.onended = () => {
+        if (playing && busGain === bus && fileSource === src) startOnBus(next, bus);
+      };
+    }
     src.start();
     fileSource = src;
   });
 }
 
-export function startMusic() {
-  if (playing) return;
-  playing = true;
-  const { ctx, musicBus } = audio();
-  busGain = ctx.createGain();
-  busGain.gain.setValueAtTime(1, ctx.currentTime);
-  busGain.connect(musicBus);
-  if (isFileTrack(track)) {
-    startFile(track, busGain);
+/** Start a track (synthesized or file) on the current music bus. */
+function startOnBus(t: Track | FileTrack, bus: GainNode) {
+  prepare(t);
+  if (isFileTrack(t)) {
+    startFile(t, bus);
     return;
   }
-  echo = createEcho(busGain);
+  const { ctx } = audio();
+  fileSource = null;
+  echo = createEcho(bus);
   step = 0;
   nextTime = ctx.currentTime + 0.05;
   // Lookahead scheduler: precise timing from the audio clock, driven by a coarse JS timer.
+  if (timer !== null) window.clearInterval(timer);
   timer = window.setInterval(() => {
     while (nextTime < ctx.currentTime + 0.15) {
       scheduleStep(step, nextTime);
@@ -140,6 +149,17 @@ export function startMusic() {
       step = (step + 1) % (STEPS_PER_BAR * synth().melody.length);
     }
   }, 25);
+}
+
+/** Start the music: `id` picks the track (otherwise the last one set). */
+export function startMusic(id?: string) {
+  if (playing) return;
+  playing = true;
+  const { ctx, musicBus } = audio();
+  busGain = ctx.createGain();
+  busGain.gain.setValueAtTime(1, ctx.currentTime);
+  busGain.connect(musicBus);
+  startOnBus(id ? trackById(id) : track, busGain);
 }
 
 export function stopMusic(fadeSeconds = 0.6) {

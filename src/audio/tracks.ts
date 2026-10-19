@@ -33,6 +33,12 @@ export interface FileTrack {
   file: string;
   /** Volume relative to the synthesized tracks (1 = unchanged). */
   gain?: number;
+  /** false = play once (a jingle). Default: loop. */
+  loop?: boolean;
+  /** Track to continue with after a one-shot file ends. */
+  then?: string;
+  /** Synthesized track to play instead if the file isn't there (e.g. not committed, so not on the live site). */
+  fallback: string;
 }
 
 export const isFileTrack = (t: Track | FileTrack): t is FileTrack => 'file' in t;
@@ -281,8 +287,30 @@ export const TRACKS: (Track | FileTrack)[] = [
     leadVoice: 'brass',
     stabs: [6, 14],
   },
+  {
+    id: 'sf2-select',
+    name: 'Player Select (SF2 Turbo)',
+    description: 'Recorded track, loops on the setup screen. Local file public/music/03. Player Select.mp3 (falls back to Arena)',
+    file: 'music/03. Player Select.mp3',
+    gain: 0.7,
+    fallback: 'arena',
+  },
+  {
+    id: 'sf2-vs',
+    name: 'VS (SF2 Turbo) → Arena',
+    description: 'Recorded 4.5 s VS jingle when the reveal opens, then Arena. Local file public/music/04. VS..mp3',
+    file: 'music/04. VS..mp3',
+    gain: 0.8,
+    loop: false,
+    then: 'arena',
+    fallback: 'arena',
+  },
 ];
 
 export const DEFAULT_TRACK = 'arena';
+
+/** Music on the setup screen, and when the reveal opens (each falls back to Arena if its file is missing). */
+export const MENU_TRACK = 'sf2-select';
+export const REVEAL_TRACK = 'sf2-vs';
 
 export const trackById = (id: string) => TRACKS.find((t) => t.id === id) ?? TRACKS[0];
