@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
 import { startMusic, stopMusic } from '../audio/music';
 import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
@@ -43,27 +43,21 @@ const VERSUS: Line = { text: 'versus!', style: 'call', clip: { line: 'versus' } 
 const DUEL: Line = { text: 'Duel!', style: 'hype', clip: { line: 'duel' } };
 const FIGHT: Line = { text: 'Fight!', style: 'hype', clip: { line: 'fight' } };
 
-// Reveal sequence for one lane, in seconds: lane title, then blue player, then the VS slam, then red player.
-// Passed to CSS as variables so animations and sounds stay in sync.
-// Spaced so the announcer ("<lane>!", "<name>!", "versus!", "<name>!") keeps up with the visuals.
-const T_TITLE = 0;
-const T_BLUE = 0.9;
-const T_VS = 1.7;
-const SLAM = 0.25; // duration of the VS slam keyframe
-const T_RED = 2.6;
-const DUEL_OFFSET = 0.8; // duel lanes show the DUEL banner first
-const HOLD_AFTER_RED = 2;
-const FIGHT_HOLD = 1800;
+// Each lane card is a script of steps: lane title -> blue player -> VS slam -> red player.
+// A step's element appears with its announcer line, and the next step waits until that line has been
+// said AND a minimum time has passed, so the visuals never run ahead of the voice. The minimums keep
+// the old pace when the sound or the announcer is off.
+const MIN_TITLE = 0.9; // seconds before the blue player
+const MIN_BLUE = 0.8; // before the VS slam
+const SLAM = 0.25; // duration of the VS slam keyframe (impact flash + shake right after)
+const MIN_VS = 0.65; // after the slam, before the red player
+const MIN_RED = 0.5; // after the red player appears
+const HOLD = 1.6; // after the last line, before the next card
+const MIN_DUEL = 0.8; // duel banner before the lane title
+const FIGHT_HOLD = 1.5;
 
-function cardTimings(offset: number) {
-  return {
-    '--t-title': `${offset + T_TITLE}s`,
-    '--t-blue': `${offset + T_BLUE}s`,
-    '--t-red': `${offset + T_RED}s`,
-    '--t-vs': `${offset + T_VS}s`,
-    '--t-impact': `${offset + T_VS + SLAM}s`,
-  } as CSSProperties;
-}
+/** Steps of a lane card; elements are hidden until their step is reached. */
+const STAGE = { banner: 0, title: 1, blue: 2, vs: 3, red: 4 } as const;
 
 export default function RevealScreen({ result, muted, onToggleMute, announcer, onToggleAnnouncer, onDone }: Props) {
   // 0..4 = lanes, 5 = "FIGHT!"
@@ -73,6 +67,9 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
   const isDuel = !isFight && result.duelLanes.includes(role);
 
   const next = useCallback(() => setIndex((i) => i + 1), []);
+  // Stage is tied to the card index, so a new card starts hidden instead of inheriting the last stage.
+  const [stageOf, setStageOf] = useState({ index: 0, stage: 0 });
+  const stage = stageOf.index === index ? stageOf.stage : 0;
   // Keep the latest onDone without restarting the card timers when the parent re-renders (e.g. mute).
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
@@ -96,35 +93,48 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       return;
     }
     let cancelled = false;
-    const at = (seconds: number, fn: () => void) => window.setTimeout(fn, seconds * 1000);
-    // Move on once the hold time has passed AND the announcer has finished talking.
-    const advanceAfter = (seconds: number) =>
-      at(seconds, () => {
-        void announcerIdle().then(() => !cancelled && next());
-      });
+    const wait = (seconds: number) => new Promise((r) => window.setTimeout(r, seconds * 1000));
+    const show = (stage: number) => !cancelled && setStageOf({ index, stage });
+    // Show a step, say its line, and wait for both the line and the step's minimum time.
+    const step = async (stage: number, line: Line | null, minSeconds: number) => {
+      if (cancelled) return;
+      show(stage);
+      await Promise.all([line ? announce(line) : null, wait(minSeconds)]);
+    };
 
-    let timers: number[];
-    if (isFight) {
-      fightJingle();
-      stopMusic(1.5);
-      timers = [at(0.3, () => void announce(FIGHT)), advanceAfter(FIGHT_HOLD / 1000)];
-    } else {
-      const o = isDuel ? DUEL_OFFSET : 0;
-      timers = [
-        at(o + T_TITLE + 0.1, () => void announce(laneLine(role))),
-        at(o + T_BLUE, () => whoosh(true)),
-        at(o + T_BLUE + 0.1, () => void announce(nameLine(result.blue[role]))),
-        at(o + T_VS + SLAM, vsHit),
-        at(o + T_VS + SLAM + 0.05, () => void announce(VERSUS)),
-        at(o + T_RED, () => whoosh(false)),
-        at(o + T_RED + 0.1, () => void announce(nameLine(result.red[role]))),
-        advanceAfter(o + T_RED + HOLD_AFTER_RED),
-      ];
-      if (isDuel) timers.push(at(0.15, duelSting), at(0.3, () => void announce(DUEL)));
-    }
+    void (async () => {
+      if (isFight) {
+        fightJingle();
+        stopMusic(1.5);
+        await wait(0.3);
+        await Promise.all([announce(FIGHT), wait(FIGHT_HOLD)]);
+        if (!cancelled) next();
+        return;
+      }
+      if (isDuel) {
+        duelSting();
+        await step(STAGE.banner, DUEL, MIN_DUEL);
+      }
+      await step(STAGE.title, laneLine(role), MIN_TITLE);
+      if (cancelled) return;
+      whoosh(true);
+      await step(STAGE.blue, nameLine(result.blue[role]), MIN_BLUE);
+      if (cancelled) return;
+      show(STAGE.vs);
+      await wait(SLAM);
+      if (cancelled) return;
+      vsHit();
+      await Promise.all([announce(VERSUS), wait(MIN_VS)]);
+      if (cancelled) return;
+      whoosh(false);
+      await step(STAGE.red, nameLine(result.red[role]), MIN_RED);
+      await wait(HOLD);
+      await announcerIdle();
+      if (!cancelled) next();
+    })();
+
     return () => {
       cancelled = true;
-      timers.forEach((t) => window.clearTimeout(t));
       // Skipping ahead: drop what the previous card still had to say.
       stopAnnouncer();
     };
@@ -156,17 +166,17 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
           FIGHT!
         </div>
       ) : (
-        <div className={`card ${isDuel ? 'duel' : ''}`} key={index} style={cardTimings(isDuel ? DUEL_OFFSET : 0)}>
+        <div className={`card ${isDuel ? 'duel' : ''} ${stage >= STAGE.vs ? 'impact' : ''}`} key={index}>
           {isDuel && <div className="duel-banner">⚔ DUEL ⚔</div>}
-          <div className="lane-title">{LANE_TITLES[role]}</div>
+          <div className={`lane-title ${stage >= STAGE.title ? '' : 'pending'}`}>{LANE_TITLES[role]}</div>
           <div className="fighters">
-            <div className="fighter blue">
+            <div className={`fighter blue ${stage >= STAGE.blue ? '' : 'pending'}`}>
               <span className="side">BLUE SIDE</span>
               <span className="name">{result.blue[role].name}</span>
               <ChampionTag id={result.champions?.[result.blue[role].id]} large />
             </div>
-            <div className="vs">VS</div>
-            <div className="fighter red">
+            <div className={`vs ${stage >= STAGE.vs ? '' : 'pending'}`}>VS</div>
+            <div className={`fighter red ${stage >= STAGE.red ? '' : 'pending'}`}>
               <span className="side">RED SIDE</span>
               <span className="name">{result.red[role].name}</span>
               <ChampionTag id={result.champions?.[result.red[role].id]} large />

@@ -594,7 +594,7 @@ select:disabled {
   width: 100%;
   padding: 0 16px;
   text-align: center;
-  animation: shake 0.35s var(--t-impact) steps(6);
+  animation: shake 0.35s 0.25s steps(6);
   will-change: transform;
 }
 .card::after {
@@ -606,7 +606,17 @@ select:disabled {
   opacity: 0;
   will-change: opacity;
   pointer-events: none;
-  animation: flash 0.3s var(--t-impact) ease-out;
+  animation: flash 0.3s 0.25s ease-out;
+}
+/* Reveal steps are revealed one by one (RevealScreen); until then they're hidden and not animating. */
+.reveal .card .pending {
+  visibility: hidden;
+  animation: none;
+}
+/* The impact flash and shake play when the VS slam lands, i.e. once the card reaches the VS step. */
+.card:not(.impact),
+.card:not(.impact)::after {
+  animation: none;
 }
 .lane-title {
   font-weight: 700;
@@ -617,7 +627,7 @@ select:disabled {
   color: transparent;
   filter: drop-shadow(4px 4px 0 #000);
   margin-bottom: clamp(24px, 6vh, 56px);
-  animation: drop 0.35s var(--t-title) ease-out both;
+  animation: drop 0.35s ease-out both;
   letter-spacing: 3px;
 }
 .fighters {
@@ -648,7 +658,7 @@ select:disabled {
 }
 .fighter.blue {
   text-align: right;
-  animation: from-left 0.35s var(--t-blue) cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  animation: from-left 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 .fighter.blue .name {
   background-image: var(--metal-blue);
@@ -656,7 +666,7 @@ select:disabled {
 }
 .fighter.red {
   text-align: left;
-  animation: from-right 0.35s var(--t-red) cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  animation: from-right 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 .fighter.red .name {
   background-image: var(--metal-red);
@@ -671,7 +681,7 @@ select:disabled {
   color: transparent;
   filter: drop-shadow(5px 5px 0 #000) drop-shadow(0 0 18px rgba(255, 110, 0, 0.85));
   font-style: italic;
-  animation: slam 0.25s var(--t-vs) cubic-bezier(0.5, 0, 0.75, 0) both;
+  animation: slam 0.25s cubic-bezier(0.5, 0, 0.75, 0) both;
 }
 
 .duel-banner {
