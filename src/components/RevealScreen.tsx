@@ -1,9 +1,10 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
 import { startMusic, stopMusic } from '../audio/music';
-import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
+import { clash, duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, ROLE_LABELS, type Player, type Role, type TeamResult } from '../types';
 import ChampionTag from './ChampionTag';
+import PixelFighter, { IMPACT_MS } from './PixelFighter';
 
 interface Props {
   result: TeamResult;
@@ -43,7 +44,8 @@ const VERSUS: Line = { text: 'versus!', style: 'call', clip: { line: 'versus' } 
 const DUEL: Line = { text: 'Duel!', style: 'hype', clip: { line: 'duel' } };
 const FIGHT: Line = { text: 'Fight!', style: 'hype', clip: { line: 'fight' } };
 
-// Each lane card is a script of steps: lane title -> blue player -> VS slam -> red player.
+// Each lane card is a script of steps: lane title -> blue player -> VS slam -> red player -> clash
+// (the blue fighter attacks, the red one parries).
 // A step's element appears with its announcer line, and the next step waits until that line has been
 // said AND a minimum time has passed, so the visuals never run ahead of the voice. The minimums keep
 // the old pace when the sound or the announcer is off.
@@ -52,13 +54,14 @@ const MIN_BLUE = 0.8; // before the VS slam
 const SLAM = 0.25; // duration of the VS slam keyframe (impact flash + shake right after)
 const MIN_VS = 0.65; // after the slam, before the red player
 const MIN_RED = 0.5; // after the red player appears
-const HOLD = 1.6; // after the last line, before the next card
+const CLASH = 0.7; // the attack and the parry
+const HOLD = 1.1; // after the clash, before the next card
 const MIN_DUEL = 0.8; // duel banner before the lane title
 const FIGHT_HOLD = 1.2; // FIGHT! alone, before the recap appears under it
 const RECAP_SECONDS = 30; // how long the recap stays before the reveal closes (NEXT/SKIP close it earlier)
 
 /** Steps of a lane card; elements are hidden until their step is reached. */
-const STAGE = { banner: 0, title: 1, blue: 2, vs: 3, red: 4 } as const;
+const STAGE = { banner: 0, title: 1, blue: 2, vs: 3, red: 4, clash: 5 } as const;
 
 export default function RevealScreen({ result, muted, onToggleMute, announcer, onToggleAnnouncer, onDone }: Props) {
   // 0..4 = lanes, 5 = "FIGHT!"
@@ -131,6 +134,12 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       if (cancelled) return;
       whoosh(false);
       await step(STAGE.red, nameLine(result.red[role]), MIN_RED);
+      if (cancelled) return;
+      show(STAGE.clash);
+      await wait(IMPACT_MS / 1000);
+      if (cancelled) return;
+      clash();
+      await wait(CLASH - IMPACT_MS / 1000);
       await wait(HOLD);
       await announcerIdle();
       if (!cancelled) next();
@@ -175,12 +184,14 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
           <div className={`lane-title ${stage >= STAGE.title ? '' : 'pending'}`}>{LANE_TITLES[role]}</div>
           <div className="fighters">
             <div className={`fighter blue ${stage >= STAGE.blue ? '' : 'pending'}`}>
+              <PixelFighter name={result.blue[role].name} side="blue" action={stage >= STAGE.clash ? 'attack' : 'idle'} />
               <span className="side">BLUE SIDE</span>
               <span className="name">{result.blue[role].name}</span>
               <ChampionTag id={result.champions?.[result.blue[role].id]} large />
             </div>
             <div className={`vs ${stage >= STAGE.vs ? '' : 'pending'}`}>VS</div>
             <div className={`fighter red ${stage >= STAGE.red ? '' : 'pending'}`}>
+              <PixelFighter name={result.red[role].name} side="red" action={stage >= STAGE.clash ? 'parry' : 'idle'} />
               <span className="side">RED SIDE</span>
               <span className="name">{result.red[role].name}</span>
               <ChampionTag id={result.champions?.[result.red[role].id]} large />

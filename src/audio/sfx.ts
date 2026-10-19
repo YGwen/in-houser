@@ -22,6 +22,22 @@ export function vsHit() {
   noise(out, t, 0.35, 0.5, { type: 'lowpass', freq: 4000, endFreq: 200 });
 }
 
+/** Blades meeting when the red fighter parries: a bright metallic clang over a short noise burst. */
+export function clash() {
+  const { t, out, echo } = buses();
+  for (const [freq, vol, dur] of [
+    [1480, 0.09, 0.32],
+    [2210, 0.07, 0.26],
+    [3390, 0.05, 0.2],
+    [5020, 0.03, 0.14],
+  ]) {
+    tone(out, 'square', freq, t, dur, vol, freq * 0.97);
+    tone(echo, 'triangle', freq, t, dur, vol * 0.5);
+  }
+  noise(out, t, 0.12, 0.45, { type: 'highpass', freq: 3000 });
+  tone(out, 'triangle', 220, t, 0.12, 0.25, 90);
+}
+
 /** Air sweep when a player's name slides in, travelling from that player's side. */
 export function whoosh(fromLeft = true) {
   const { t, out } = buses();

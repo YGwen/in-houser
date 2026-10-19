@@ -989,3 +989,107 @@ select:disabled {
 .fight {
   will-change: transform;
 }
+
+/* Pixel fighters (PixelFighter): above each name, facing each other; blue attacks, red parries. */
+.pixel-fighter {
+  --lunge: clamp(24px, 7vw, 96px); /* replaced by the measured gap when attacking */
+  position: relative;
+  display: block;
+  width: clamp(120px, 20vw, 216px);
+  aspect-ratio: 48 / 32;
+}
+.fighter.blue .pixel-fighter {
+  align-self: flex-end;
+}
+/* The attacker passes in front of the VS. */
+.fighter.blue {
+  position: relative;
+  z-index: 2;
+}
+.fighter.red .pixel-fighter {
+  align-self: flex-start;
+}
+.pixel-fighter canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.55));
+}
+.pixel-fighter.red canvas {
+  transform: scaleX(-1);
+}
+.pixel-fighter.attack {
+  animation: fighter-lunge 0.6s steps(12) both;
+}
+.pixel-fighter.parry {
+  animation: fighter-recoil 0.6s steps(12) both;
+}
+/* Hit spark where the strike meets the guard (front of the red fighter), when the strike lands. */
+.pixel-fighter .spark {
+  position: absolute;
+  left: 36%;
+  top: 36%;
+  width: 34%;
+  aspect-ratio: 1;
+  background: #fff6b0;
+  clip-path: polygon(50% 0, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0 50%, 39% 35%);
+  filter: drop-shadow(0 0 6px #ffb800);
+  opacity: 0;
+  animation: spark 0.36s 0.16s steps(6) both;
+}
+@keyframes fighter-lunge {
+  0% {
+    transform: translateX(0);
+  }
+  27% {
+    transform: translateX(-6px);
+  }
+  34%,
+  70% {
+    transform: translateX(var(--lunge));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes fighter-recoil {
+  0%,
+  27% {
+    transform: translateX(0);
+  }
+  36% {
+    transform: translateX(14px);
+  }
+  70% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes spark {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.25) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6) rotate(45deg);
+  }
+}
+@media (max-width: 480px) {
+  .pixel-fighter {
+    width: clamp(84px, 26vw, 120px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pixel-fighter.attack,
+  .pixel-fighter.parry {
+    animation: none;
+  }
+}
