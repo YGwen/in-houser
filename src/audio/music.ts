@@ -1,17 +1,20 @@
 import { audio, midiToFreq } from './engine';
 import { brass, crash, createEcho, fmBass, hat, kick, lead, pad, snare } from './instruments';
-import { DEFAULT_TRACK, trackById, type Track } from './tracks';
+import { DEFAULT_TRACK, isFileTrack, trackById, type FileTrack, type Track } from './tracks';
 
-// Plays the selected track (src/audio/tracks.ts) with a lookahead scheduler on the audio clock.
+// Plays the selected track (src/audio/tracks.ts): synthesized tracks with a lookahead scheduler on the
+// audio clock, recorded tracks (audio files) as a looping buffer. Both go through the same bus, so
+// ducking under the announcer and fading out work the same way.
 const STEPS_PER_BAR = 16;
 
-let track: Track = trackById(DEFAULT_TRACK);
+let track: Track | FileTrack = trackById(DEFAULT_TRACK);
 let melodyAt = new Map<number, [number, number]>();
 
-function prepare(t: Track) {
+function prepare(t: Track | FileTrack) {
   track = t;
-  // Melody note starts, indexed by absolute step in the loop.
   melodyAt = new Map();
+  if (isFileTrack(t)) return;
+  // Melody note starts, indexed by absolute step in the loop.
   t.melody.forEach((bar, b) => {
     let s = b * STEPS_PER_BAR;
     for (const [note, len] of bar) {
@@ -22,7 +25,8 @@ function prepare(t: Track) {
 }
 prepare(track);
 
-const stepSeconds = () => 60 / track.bpm / 4; // one 16th note
+const synth = () => track as Track;
+const stepSeconds = () => 60 / synth().bpm / 4; // one 16th note
 
 let timer: number | null = null;
 let step = 0;
@@ -32,6 +36,7 @@ let echo: AudioNode | null = null;
 
 function scheduleStep(s: number, t: number) {
   if (!busGain || !echo) return;
+  const track = synth();
   const bar = Math.floor(s / STEPS_PER_BAR);
   const i = s % STEPS_PER_BAR;
   const chord = track.chords[bar % track.chords.length];
@@ -81,12 +86,49 @@ export function setMusicTrack(id: string) {
 
 export const currentTrack = () => track.id;
 
+// Recorded tracks: decoded once, then looped.
+const fileBuffers = new Map<string, Promise<AudioBuffer | null>>();
+let fileSource: AudioBufferSourceNode | null = null;
+let playing = false;
+
+function loadFile(file: string) {
+  let b = fileBuffers.get(file);
+  if (!b) {
+    b = fetch(`${import.meta.env.BASE_URL}${file}`)
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.statusText))))
+      .then((d) => audio().ctx.decodeAudioData(d))
+      .catch(() => null);
+    fileBuffers.set(file, b);
+  }
+  return b;
+}
+
+function startFile(t: FileTrack, bus: GainNode) {
+  void loadFile(t.file).then((buffer) => {
+    if (!buffer || !playing || busGain !== bus) return; // stopped (or switched) while loading
+    const { ctx } = audio();
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    const level = ctx.createGain();
+    level.gain.value = t.gain ?? 1;
+    src.connect(level).connect(bus);
+    src.start();
+    fileSource = src;
+  });
+}
+
 export function startMusic() {
-  if (timer !== null) return;
+  if (playing) return;
+  playing = true;
   const { ctx, musicBus } = audio();
   busGain = ctx.createGain();
   busGain.gain.setValueAtTime(1, ctx.currentTime);
   busGain.connect(musicBus);
+  if (isFileTrack(track)) {
+    startFile(track, busGain);
+    return;
+  }
   echo = createEcho(busGain);
   step = 0;
   nextTime = ctx.currentTime + 0.05;
@@ -95,16 +137,20 @@ export function startMusic() {
     while (nextTime < ctx.currentTime + 0.15) {
       scheduleStep(step, nextTime);
       nextTime += stepSeconds();
-      step = (step + 1) % (STEPS_PER_BAR * track.melody.length);
+      step = (step + 1) % (STEPS_PER_BAR * synth().melody.length);
     }
   }, 25);
 }
 
 export function stopMusic(fadeSeconds = 0.6) {
-  if (timer === null) return;
-  window.clearInterval(timer);
+  if (!playing) return;
+  playing = false;
+  if (timer !== null) window.clearInterval(timer);
   timer = null;
   const { ctx } = audio();
+  const src = fileSource;
+  fileSource = null;
+  if (src) window.setTimeout(() => src.stop(), fadeSeconds * 1000 + 200);
   const g = busGain;
   busGain = null;
   echo = null;

@@ -24,7 +24,20 @@ export interface Track {
   stabs?: number[];
 }
 
-export const TRACKS: Track[] = [
+/** A recorded track: an audio file (in public/) played on a loop instead of the synthesizer. */
+export interface FileTrack {
+  id: string;
+  name: string;
+  description: string;
+  /** Path under public/, e.g. "music/my-track.mp3". */
+  file: string;
+  /** Volume relative to the synthesized tracks (1 = unchanged). */
+  gain?: number;
+}
+
+export const isFileTrack = (t: Track | FileTrack): t is FileTrack => 'file' in t;
+
+export const TRACKS: (Track | FileTrack)[] = [
   {
     id: 'arena',
     name: 'Arena',
