@@ -117,10 +117,15 @@ export function stopMusic(fadeSeconds = 0.6) {
 /**
  * Lower the music briefly so a sound stands out. `level` is the music volume while ducked:
  * 0.2 for short dramatic effects, higher for the announcer so the music stays audible under it.
+ * A deeper duck that lasts longer wins (the announcer doesn't bring the music back up under the FIGHT! sting).
  */
+let ducked = { until: 0, level: 1 };
 export function duckMusic(seconds: number, level = 0.2) {
   if (!busGain) return;
   const { ctx } = audio();
+  const until = ctx.currentTime + seconds;
+  if (ctx.currentTime < ducked.until && ducked.level <= level && until <= ducked.until) return;
+  ducked = { until, level };
   const g = busGain.gain;
   g.cancelScheduledValues(ctx.currentTime);
   g.setTargetAtTime(level, ctx.currentTime, 0.03);
