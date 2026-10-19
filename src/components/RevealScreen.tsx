@@ -2,7 +2,7 @@
 import { announce, announcerIdle, preloadVoice, stopAnnouncer, type Line } from '../audio/announcer';
 import { startMusic, stopMusic } from '../audio/music';
 import { duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
-import { ROLES, type Player, type Role, type TeamResult } from '../types';
+import { ROLES, ROLE_LABELS, type Player, type Role, type TeamResult } from '../types';
 import ChampionTag from './ChampionTag';
 
 interface Props {
@@ -54,7 +54,8 @@ const MIN_VS = 0.65; // after the slam, before the red player
 const MIN_RED = 0.5; // after the red player appears
 const HOLD = 1.6; // after the last line, before the next card
 const MIN_DUEL = 0.8; // duel banner before the lane title
-const FIGHT_HOLD = 1.5;
+const FIGHT_HOLD = 1.2; // FIGHT! alone, before the recap appears under it
+const RECAP_SECONDS = 30; // how long the recap stays before the reveal closes (NEXT/SKIP close it earlier)
 
 /** Steps of a lane card; elements are hidden until their step is reached. */
 const STAGE = { banner: 0, title: 1, blue: 2, vs: 3, red: 4 } as const;
@@ -104,10 +105,12 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
 
     void (async () => {
       if (isFight) {
+        // The music keeps playing under the recap; it fades out when the reveal closes.
         fightJingle();
-        stopMusic(1.5);
         await wait(0.3);
         await Promise.all([announce(FIGHT), wait(FIGHT_HOLD)]);
+        show(1); // recap
+        await wait(RECAP_SECONDS);
         if (!cancelled) next();
         return;
       }
@@ -162,8 +165,9 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       <div className="scanlines" />
 
       {isFight ? (
-        <div className="fight" key="fight">
-          FIGHT!
+        <div className={`fight-screen ${stage >= 1 ? 'with-recap' : ''}`} key="fight">
+          <div className="fight">FIGHT!</div>
+          {stage >= 1 && <Recap result={result} seconds={RECAP_SECONDS} />}
         </div>
       ) : (
         <div className={`card ${isDuel ? 'duel' : ''} ${stage >= STAGE.vs ? 'impact' : ''}`} key={index}>
@@ -210,6 +214,44 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Summary of every matchup, shown under FIGHT! with a countdown bar until the reveal closes. */
+function Recap({ result, seconds }: { result: TeamResult; seconds: number }) {
+  return (
+    // Clicks inside the recap don't skip it (the rest of the screen still does).
+    <div className="recap" onClick={(e) => e.stopPropagation()}>
+      <div className="recap-head">
+        <span className="blue">BLUE {result.blueTotal}★</span>
+        <span className="gap">gap {result.gap}</span>
+        <span className="red">{result.redTotal}★ RED</span>
+      </div>
+      <ul>
+        {ROLES.map((role) => {
+          const duel = result.duelLanes.includes(role);
+          const blue = result.blue[role];
+          const red = result.red[role];
+          return (
+            <li key={role} className={duel ? 'duel' : ''}>
+              <span className="p blue">
+                <span className="n">{blue.name}</span>
+                <ChampionTag id={result.champions?.[blue.id]} />
+              </span>
+              <span className="lane">
+                {duel && '⚔ '}
+                {ROLE_LABELS[role]}
+              </span>
+              <span className="p red">
+                <span className="n">{red.name}</span>
+                <ChampionTag id={result.champions?.[red.id]} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="recap-timer" style={{ animationDuration: `${seconds}s` }} />
     </div>
   );
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>In-Houser · Voice lab</title>
+    <title>In-Houser · Sound lab</title>
     <style>
       :root { color-scheme: dark; }
       body { margin: 0; background: #0b0f1a; color: #e8ecf6; font-family: Inter, system-ui, sans-serif; }
@@ -30,7 +30,14 @@
   </head>
   <body>
     <main>
-      <h1>Announcer voice lab</h1>
+      <h1>Sound lab</h1>
+      <div class="toolbar"><button id="stop-top">■ Stop</button></div>
+      <h2>Music for the reveal</h2>
+      <p class="hint">
+        Same 16-bit style and instruments, different moods. Each plays as a loop (about 15 seconds before it repeats); tell
+        me the number you prefer.
+      </p>
+      <div id="music"></div>
       <h2>Player names (current announcer)</h2>
       <p class="hint">
         Every player's name as the announcer says it now, with the spelling used (<code>say:</code> in players.yaml). Tell me
