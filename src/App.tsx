@@ -142,6 +142,13 @@ export default function App() {
 
       <HistoryPanel history={history} players={players} onChange={setHistory} />
 
+      {/* Required by Riot's "Legal Jibber Jabber" policy for fan projects using their art and data. */}
+      <footer className="legal">
+        In-Houser isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone
+        officially involved in producing or managing Riot Games properties. Riot Games, and all associated
+        properties are trademarks or registered trademarks of Riot Games, Inc.
+      </footer>
+
       {result && revealing && (
         <RevealScreen
           result={result}

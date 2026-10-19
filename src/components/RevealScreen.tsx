@@ -5,6 +5,7 @@ import { clash, duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, ROLE_LABELS, type Player, type Role, type TeamResult } from '../types';
 import ChampionTag from './ChampionTag';
 import PixelFighter, { IMPACT_MS } from './PixelFighter';
+import { championPixelArt } from '../sprites/championArt';
 
 interface Props {
   result: TeamResult;
@@ -87,6 +88,8 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       FIGHT,
       ...ROLES.flatMap((r) => [laneLine(r), nameLine(result.blue[r]), nameLine(result.red[r])]),
     ]);
+    // Pixelate every main's art now, so portraits are ready when their card comes up.
+    for (const r of ROLES) for (const p of [result.blue[r], result.red[r]]) if (p.main) void championPixelArt(p.main);
     return () => stopMusic();
   }, [result]);
 

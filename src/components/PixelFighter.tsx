@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ART_W, ART_H, championPixelArt } from '../sprites/championArt';
 import { SPRITE_H, SPRITE_W, costumeFor, drawPose, frontOf, type Pixels, type Pose } from '../sprites/fighter';
 
 export type FighterAction = 'idle' | 'attack' | 'parry';
@@ -57,13 +58,33 @@ interface Props {
   action: FighterAction;
 }
 
-/** A player's animated pixel fighter; blue faces right, red is mirrored to face left. */
+/**
+ * A player's fighter: their main champion's art as a pixel-art portrait when it loads, else an animated
+ * pixel sprite. Blue faces right, red is mirrored to face left.
+ */
 export default function PixelFighter({ name, main, side, action }: Props) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const wrap = useRef<HTMLSpanElement>(null);
+  const [art, setArt] = useState<HTMLCanvasElement | null>(null);
+  useEffect(() => {
+    let live = true;
+    setArt(null);
+    if (main) void championPixelArt(main).then((c) => live && setArt(c));
+    return () => {
+      live = false;
+    };
+  }, [main]);
+  return art ? (
+    <Portrait art={art} side={side} action={action} />
+  ) : (
+    <Sprite name={name} main={main} side={side} action={action} />
+  );
+}
 
-  // The lunge covers the real gap to the opponent (it depends on the screen width, the VS between them
-  // and both fighters' reach), so the strike lands on the front of the opponent's guard.
+/**
+ * The lunge covers the real gap to the opponent (it depends on the screen width, the VS between them and
+ * both fighters' reach), so the strike lands on the front of the opponent's guard. `reach` and the
+ * foe's `data-guard` are fractions of each element's width, from its left edge.
+ */
+function useLunge(wrap: React.RefObject<HTMLSpanElement | null>, action: FighterAction, reach: number) {
   useLayoutEffect(() => {
     const me = wrap.current;
     if (action !== 'attack' || !me) return;
@@ -71,10 +92,32 @@ export default function PixelFighter({ name, main, side, action }: Props) {
     if (!foe) return;
     const a = me.getBoundingClientRect();
     const b = foe.getBoundingClientRect();
-    const tip = a.left + ((frontOf(frame(name, main, side, 'strike').px).x + 1) / SPRITE_W) * a.width;
-    const guard = b.left + (1 - (Number(foe.dataset.guardX) + 1) / SPRITE_W) * b.width; // red is mirrored
-    me.style.setProperty('--lunge', `${Math.max(0, guard - tip)}px`);
-  }, [action, name, main, side]);
+    const gap = b.left + Number(foe.dataset.guard) * b.width - (a.left + reach * a.width);
+    me.style.setProperty('--lunge', `${Math.max(0, gap)}px`);
+  }, [wrap, action, reach]);
+}
+
+function Portrait({ art, side, action }: { art: HTMLCanvasElement; side: 'blue' | 'red'; action: FighterAction }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const wrap = useRef<HTMLSpanElement>(null);
+  useLunge(wrap, action, 0.97); // portraits collide frame to frame
+  useEffect(() => {
+    const g = ref.current?.getContext('2d');
+    g?.clearRect(0, 0, ART_W, ART_H);
+    g?.drawImage(art, 0, 0);
+  }, [art]);
+  return (
+    <span className={`pixel-fighter portrait ${side} ${action}`} ref={wrap} data-guard={0.03}>
+      <canvas ref={ref} width={ART_W} height={ART_H} aria-hidden="true" />
+      {action === 'parry' && <span className="spark" style={{ left: '3%', top: '45%' }} />}
+    </span>
+  );
+}
+
+function Sprite({ name, main, side, action }: Props) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const wrap = useRef<HTMLSpanElement>(null);
+  useLunge(wrap, action, (frontOf(frame(name, main, side, 'strike').px).x + 1) / SPRITE_W);
 
   useEffect(() => {
     const g = ref.current?.getContext('2d');
@@ -84,29 +127,27 @@ export default function PixelFighter({ name, main, side, action }: Props) {
       g.drawImage(frame(name, main, side, pose).canvas, 0, 0);
     };
     let timer = 0;
-    const play = (seq: [Pose, number][], i: number, loop: boolean) => {
+    const play = (seq: [Pose, number][], i: number) => {
       if (i >= seq.length) {
-        play(IDLE, 0, true);
+        play(IDLE, 0);
         return;
       }
       const [pose, ms] = seq[i];
       show(pose);
-      timer = window.setTimeout(() => play(seq, i + 1, loop), ms);
+      timer = window.setTimeout(() => play(seq, i + 1), ms);
     };
-    play(action === 'idle' ? IDLE : SEQUENCES[action], 0, action === 'idle');
+    play(action === 'idle' ? IDLE : SEQUENCES[action], 0);
     return () => window.clearTimeout(timer);
   }, [name, main, side, action]);
 
   // The hit spark sits on the front of the guard, at the height strikes land (chest to head).
   const guard = frontOf(frame(name, main, side, 'guard').px, 17, 30);
+  const guardLeft = 1 - (guard.x + 1) / SPRITE_W; // red is mirrored
   return (
-    <span className={`pixel-fighter ${side} ${action}`} ref={wrap} data-guard-x={guard.x}>
+    <span className={`pixel-fighter ${side} ${action}`} ref={wrap} data-guard={guardLeft}>
       <canvas ref={ref} width={SPRITE_W} height={SPRITE_H} aria-hidden="true" />
       {action === 'parry' && (
-        <span
-          className="spark"
-          style={{ left: `${(1 - (guard.x + 1) / SPRITE_W) * 100}%`, top: `${(guard.y / SPRITE_H) * 100}%` }}
-        />
+        <span className="spark" style={{ left: `${guardLeft * 100}%`, top: `${(guard.y / SPRITE_H) * 100}%` }} />
       )}
     </span>
   );
