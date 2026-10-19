@@ -184,14 +184,14 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
           <div className={`lane-title ${stage >= STAGE.title ? '' : 'pending'}`}>{LANE_TITLES[role]}</div>
           <div className="fighters">
             <div className={`fighter blue ${stage >= STAGE.blue ? '' : 'pending'}`}>
-              <PixelFighter name={result.blue[role].name} side="blue" action={stage >= STAGE.clash ? 'attack' : 'idle'} />
+              <PixelFighter name={result.blue[role].name} main={result.blue[role].main} side="blue" action={stage >= STAGE.clash ? 'attack' : 'idle'} />
               <span className="side">BLUE SIDE</span>
               <span className="name">{result.blue[role].name}</span>
               <ChampionTag id={result.champions?.[result.blue[role].id]} large />
             </div>
             <div className={`vs ${stage >= STAGE.vs ? '' : 'pending'}`}>VS</div>
             <div className={`fighter red ${stage >= STAGE.red ? '' : 'pending'}`}>
-              <PixelFighter name={result.red[role].name} side="red" action={stage >= STAGE.clash ? 'parry' : 'idle'} />
+              <PixelFighter name={result.red[role].name} main={result.red[role].main} side="red" action={stage >= STAGE.clash ? 'parry' : 'idle'} />
               <span className="side">RED SIDE</span>
               <span className="name">{result.red[role].name}</span>
               <ChampionTag id={result.champions?.[result.red[role].id]} large />
