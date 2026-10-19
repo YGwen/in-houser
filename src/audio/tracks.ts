@@ -18,6 +18,10 @@ export interface Track {
   /** Closed hi-hat every N steps (1 = 16ths, 2 = 8ths), and an optional open hat step. */
   hatEvery: 1 | 2;
   openHat?: number;
+  /** Melody instrument: smooth detuned-saw lead (default) or punchy brass. */
+  leadVoice?: 'lead' | 'brass';
+  /** Steps where the bar's chord is played as a short brass stab. */
+  stabs?: number[];
 }
 
 export const TRACKS: Track[] = [
@@ -234,6 +238,35 @@ export const TRACKS: Track[] = [
     kick: [0, 8, 10],
     snare: [4, 12],
     hatEvery: 2,
+  },
+  {
+    id: 'select',
+    name: 'Select',
+    description: "C major rock, 150 BPM — bouncy and brassy, in the spirit of SF2 Turbo's character select (original melody)",
+    bpm: 150,
+    chords: [
+      { root: 24, pad: [64, 67, 72] }, // C
+      { root: 22, pad: [62, 65, 70] }, // Bb (the "rock" flat seventh)
+      { root: 29, pad: [65, 69, 72] }, // F
+      { root: 31, pad: [67, 71, 74] }, // G
+    ],
+    melody: [
+      [[72, 2], [76, 2], [79, 2], [76, 2], [84, 4], [79, 4]],
+      [[82, 2], [79, 2], [77, 2], [74, 2], [77, 4], [70, 4]],
+      [[77, 2], [81, 2], [84, 2], [81, 2], [77, 4], [72, 2], [74, 2]],
+      [[79, 6], [77, 2], [74, 2], [71, 2], [74, 4]],
+      [[84, 2], [83, 2], [84, 2], [79, 2], [76, 4], [79, 4]],
+      [[82, 4], [79, 2], [82, 2], [86, 4], [84, 4]],
+      [[81, 2], [79, 2], [77, 2], [81, 2], [84, 4], [86, 4]],
+      [[88, 4], [86, 4], [83, 4], [79, 4]],
+    ],
+    bass: [[0, 0], [2, 12], [4, 7], [6, 12], [8, 0], [10, 12], [12, 7], [14, 10]],
+    kick: [0, 8],
+    snare: [4, 12],
+    hatEvery: 2,
+    openHat: 14,
+    leadVoice: 'brass',
+    stabs: [6, 14],
   },
 ];
 

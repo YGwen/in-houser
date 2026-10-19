@@ -1,5 +1,5 @@
 import { audio, midiToFreq } from './engine';
-import { crash, createEcho, fmBass, hat, kick, lead, pad, snare } from './instruments';
+import { brass, crash, createEcho, fmBass, hat, kick, lead, pad, snare } from './instruments';
 import { DEFAULT_TRACK, trackById, type Track } from './tracks';
 
 // Plays the selected track (src/audio/tracks.ts) with a lookahead scheduler on the audio clock.
@@ -50,8 +50,17 @@ function scheduleStep(s: number, t: number) {
   if (m) {
     const [note, len] = m;
     const dur = STEP * len * 0.92;
-    lead(busGain, midiToFreq(note), t, dur, 0.11);
-    lead(echo, midiToFreq(note), t, dur, 0.06);
+    if (track.leadVoice === 'brass') {
+      brass(busGain, midiToFreq(note), t, dur, 0.1);
+      brass(echo, midiToFreq(note), t, dur, 0.04);
+    } else {
+      lead(busGain, midiToFreq(note), t, dur, 0.11);
+      lead(echo, midiToFreq(note), t, dur, 0.06);
+    }
+  }
+
+  if (track.stabs?.includes(i)) {
+    for (const note of chord.pad) brass(busGain, midiToFreq(note), t, STEP * 0.9, 0.035);
   }
 
   if (track.kick.includes(i)) kick(busGain, t, 0.7);
