@@ -5,23 +5,28 @@
 # random_champion: optional, true = gets a random champion that fits their role
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
+# style: optional, a short description of how the player plays (shown when hovering the player)
 players:
   - name: Maas
     rank: 1
     role: support
     playing: true
     say: "Mahss"
+    style: "Dedicated support: Leona in every recorded game. Lives in the enemy's face with tons of crowd control and the best vision score in the lobby, setting up fights for the team. Weak points: a one-champion pool (Leona only), and even for a support low damage with almost no tower or objective involvement; dies a lot (7.8 per game). (12 games)"
   - name: Tsyuko
     rank: 3.5
     playing: true
+    style: "Bruiser and split-pusher (Locke, Yorick, Jax, Sion...). Puts heavy pressure on towers and is a real kill threat; plays all over the map but loves top lane. Weak points: dies more than others in the same roles (7.3 per game), helps less on dragons and barons, and has the lowest win rate of the regulars (4/12). (12 games)"
   - name: ToLLL
     rank: 5
     playing: true
     say: "Toll"
+    style: "The lobby's carry: plays every role and any champion (Garen, Tristana, Ahri, Sylas...). Leads in kill participation, damage and tower pressure while dying the least, and already has a pentakill. Weak points: hardly any in the stats; vision is only average, and 7 wins in 12 is fewer than the numbers suggest. (12 games)"
   - name: DMZ
     rank: 2.5
     playing: true
     say: "Day Em Zed"
+    style: "Engage-first jungler: one recorded game on Sejuani, 8/4/16 with huge objective control. Weak points: very little vision for a jungler and almost no tower damage in that game. (1 game)"
   - name: Greg
     rank: 3
     playing: true
@@ -29,26 +34,32 @@ players:
     rank: 4.5
     playing: true
     say: "Zerlt"
+    style: "Artillery mage: one recorded game, a big one, Xerath mid at 13/3/15 with the highest damage on the map. Weak points: one game is too little to tell. (1 game)"
   - name: Gorhok
     rank: 2
     role: adc
     playing: true
     say: "Gor-ock"
+    style: "Bot-lane learner: Miss Fortune at ADC, Nautilus as a support option. Always joins the fights, with high kill participation. Weak points: dies a lot (11.7 per game, the most of anyone), low vision and no objective damage: positioning is the next thing to work on. (3 games)"
   - name: Samy
     rank: 3
     playing: true
     say: "Sah-mee"
+    style: "Flexible all-rounder with a Yone habit (plus Caitlyn, Renekton, Lulu...). Best win rate among the regulars (8/12), strong damage and few deaths: shines in fights more than in split-pushing. Weak points: less tower damage than others in the same roles and little crowd control to set up fights. (12 games)"
   - name: Azod
     rank: 3
     playing: true
     say: "Ah-zod"
+    style: "Off-meta specialist: Teemo, Shaco and Kog'Maw. Unpredictable picks with solid vision control, happy anywhere from support to jungle. Weak points: the off-meta picks don't always pay off (3 wins in 8), with slightly lower kill participation and little crowd control. (8 games)"
   - name: Momo
     rank: 2
     playing: true
+    style: "Hyper-carry fan: Jinx and Kayle are the go-to picks, mostly bot lane. Takes towers and objectives more than most and lets late-game scaling do the rest. Weak points: lower kill participation than others in the same roles, little crowd control and slightly more deaths. (11 games)"
   - name: Thogae
     rank: 3.5
     playing: false
     say: "Toh-gay"
+    style: "Siege marksman: one recorded game on Caitlyn bot, doing almost all of the team's tower damage. Weak points: no objective damage and a loss, but one game is too little to tell. (1 game)"
   - name: Nefer
     rank: 3.5
     playing: false
@@ -57,6 +68,7 @@ players:
     rank: 2
     playing: false
     say: "Bal-way"
+    style: "Team-first playmaker (Tahm Kench, Ahri, Garen): big assist numbers and strong vision. Weak points: dies a bit more than average (7.3 per game) and brings little crowd control. (3 games)"
   - name: Dibs
     rank: 3.5
     playing: false
@@ -65,6 +77,7 @@ players:
     rank: 3
     playing: false
     say: "Ah-shah"
+    style: "Aggressive brawler (Vladimir, Warwick, Leona): always in the action, with top kill participation and plenty of crowd control. Weak points: dies often (7.7 per game) and stays away from towers and objectives. (3 games)"
   - name: Alex
     rank: 3.5
     playing: false
@@ -73,14 +86,17 @@ players:
     rank: 2.5
     playing: false
     say: "Nay-oh"
+    style: "Mid-focused mage and frontliner (Cho'Gath, Vladimir, Anivia, Swain...). Brings above-average crowd control, objective control and vision to the team. Weak points: rarely hits towers (28% less tower damage than others in the same roles), and 5 wins in 12. (12 games)"
   - name: Ely
     rank: 2.5
     playing: false
     say: "Eh-lee"
+    style: "Team player with a huge champion pool (Orianna, Hecarim, Fizz, Jhin, Rumble...). Assist-heavy (11 per game), dies less than average and plays every role but support. Weak points: much less tower pressure than others in the same roles, and below-average objective control and vision. (11 games)"
   - name: Dydyre
     rank: 3
     playing: false
     say: "Dee-deer"
+    style: "Control mage at heart: Malzahar is the signature pick, with Volibear as the bruiser option. Lots of crowd control and strong dragon/baron control, comfortable in every role. Weak points: a bit less tower pressure than others in the same roles. (12 games)"
   - name: Diegz
     rank: 3.5
     playing: false
@@ -89,3 +105,4 @@ players:
     rank: 2.5
     playing: false
     say: "Shah-noo"
+    style: "Objective hunter (Katarina, Poppy, Jayce): very involved on dragons and barons, good kill participation and rarely dies. Weak points: little crowd control, and 1 win in 3. (3 games)"

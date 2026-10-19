@@ -208,6 +208,11 @@ input[type='checkbox'] {
 .player-list .name {
   flex: 1 1 100px;
 }
+/* Players with a style description: dotted underline hints that hovering shows it. */
+.player-list .name.has-style {
+  text-decoration: underline dotted rgba(200, 170, 110, 0.6);
+  text-underline-offset: 3px;
+}
 .player-list select {
   flex: 0 1 auto;
 }

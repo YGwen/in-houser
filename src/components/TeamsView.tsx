@@ -58,7 +58,7 @@ export default function TeamsView({ result, recordedAs, onRecord, onReroll, onQu
           const duel = result.duelLanes.includes(role);
           return (
             <li key={role} className={duel ? 'duel' : ''}>
-              <span className="p blue">
+              <span className="p blue" title={result.blue[role].style}>
                 {result.blue[role].name}
                 <ChampionTag id={result.champions?.[result.blue[role].id]} />
               </span>
@@ -66,7 +66,7 @@ export default function TeamsView({ result, recordedAs, onRecord, onReroll, onQu
                 {duel && '⚔ '}
                 {ROLE_LABELS[role]}
               </span>
-              <span className="p red">
+              <span className="p red" title={result.red[role].style}>
                 {result.red[role].name}
                 <ChampionTag id={result.champions?.[result.red[role].id]} />
               </span>
