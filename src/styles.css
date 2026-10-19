@@ -989,3 +989,189 @@ select:disabled {
 .fight {
   will-change: transform;
 }
+
+/* Pixel fighters (PixelFighter): above each name, facing each other; blue attacks, red parries. */
+.pixel-fighter {
+  --lunge: clamp(24px, 7vw, 96px); /* replaced by the measured gap when attacking */
+  position: relative;
+  display: block;
+  width: clamp(150px, 24vw, 300px);
+  aspect-ratio: 80 / 56;
+}
+.fighter.blue .pixel-fighter {
+  align-self: flex-end;
+}
+/* The attacker passes in front of the VS. */
+.fighter.blue {
+  position: relative;
+  z-index: 2;
+}
+.fighter.red .pixel-fighter {
+  align-self: flex-start;
+}
+.pixel-fighter canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.55));
+}
+.pixel-fighter.red canvas {
+  transform: scaleX(-1);
+}
+.pixel-fighter.attack {
+  animation: fighter-lunge 0.6s steps(12) both;
+}
+.pixel-fighter.parry {
+  animation: fighter-recoil 0.6s steps(12) both;
+}
+/* Hit spark on the front of the red fighter's guard (placed by PixelFighter), when the strike lands. */
+.pixel-fighter .spark {
+  position: absolute;
+  width: 22%;
+  aspect-ratio: 1;
+  background: #fff6b0;
+  clip-path: polygon(50% 0, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0 50%, 39% 35%);
+  filter: drop-shadow(0 0 6px #ffb800);
+  opacity: 0;
+  animation: spark 0.36s 0.16s steps(6) both;
+}
+@keyframes fighter-lunge {
+  0% {
+    transform: translateX(0);
+  }
+  27% {
+    transform: translateX(-6px);
+  }
+  34%,
+  70% {
+    transform: translateX(var(--lunge));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes fighter-recoil {
+  0%,
+  27% {
+    transform: translateX(0);
+  }
+  36% {
+    transform: translateX(14px);
+  }
+  70% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes spark {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.25) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6) rotate(45deg);
+  }
+}
+@media (max-width: 480px) {
+  .pixel-fighter {
+    width: clamp(110px, 32vw, 140px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pixel-fighter.attack,
+  .pixel-fighter.parry {
+    animation: none;
+  }
+}
+
+/* Champion portraits (pixelated official art), framed like a fighting game's VS screen. */
+.pixel-fighter.portrait {
+  width: clamp(110px, 16vw, 200px);
+  aspect-ratio: 64 / 84;
+  border: 3px solid var(--side, #fff);
+  box-shadow: 0 0 0 3px #000, 6px 6px 0 3px rgba(0, 0, 0, 0.5);
+  background: #000;
+}
+/* Still fighters (3D model renders and portraits) move as a whole: idle bob, lunge, recoil, hit flash. */
+.pixel-fighter.still {
+  animation: still-idle 0.84s steps(1) infinite;
+}
+.pixel-fighter.model {
+  width: clamp(130px, 19vw, 240px);
+  aspect-ratio: 96 / 128;
+}
+.pixel-fighter.portrait.blue {
+  --side: #3d8bff;
+}
+.pixel-fighter.portrait.red {
+  --side: #ff3b4a;
+}
+.pixel-fighter.portrait canvas {
+  filter: none;
+}
+.pixel-fighter.still.attack {
+  animation: fighter-lunge 0.6s steps(12) both;
+}
+.pixel-fighter.still.parry {
+  animation: fighter-recoil 0.6s steps(12) both;
+}
+.pixel-fighter.still.parry canvas {
+  animation: hit-flash 0.24s 0.16s steps(2) both;
+}
+@keyframes still-idle {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes hit-flash {
+  0% {
+    filter: brightness(3) saturate(0);
+  }
+  100% {
+    filter: none;
+  }
+}
+@media (max-width: 480px) {
+  .pixel-fighter.portrait {
+    width: clamp(80px, 26vw, 110px);
+  }
+  .pixel-fighter.model {
+    width: clamp(96px, 30vw, 130px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pixel-fighter.still,
+  .pixel-fighter.still.parry canvas {
+    animation: none;
+  }
+}
+
+.legal {
+  margin: 32px auto 16px;
+  max-width: 720px;
+  padding: 0 16px;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+  opacity: 0.55;
+}
+
+/* Animated champions (sprite sheets from their own model and animations): no lunge, they taunt. */
+.pixel-fighter.sheet {
+  width: clamp(150px, 21vw, 270px);
+  aspect-ratio: 128 / 168;
+  animation: none;
+}
+@media (max-width: 480px) {
+  .pixel-fighter.sheet {
+    width: clamp(100px, 31vw, 140px);
+  }
+}

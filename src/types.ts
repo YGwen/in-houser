@@ -37,6 +37,8 @@ export interface Player {
   say?: string;
   /** Short description of how this player plays, shown on hover (players.yaml: `style:`). */
   style?: string;
+  /** Favourite champion (champion id, e.g. "Leona"): their reveal fighter is styled after it (players.yaml: `main:`). */
+  main?: string;
 }
 
 export interface Duel {

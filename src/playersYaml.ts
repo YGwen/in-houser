@@ -11,6 +11,7 @@ interface YamlPlayer {
   playing?: boolean;
   say?: string;
   style?: string;
+  main?: string;
 }
 
 const HEADER = `# In-Houser players
@@ -21,6 +22,7 @@ const HEADER = `# In-Houser players
 # playing: ticked for tonight's game
 # say: optional, how the announcer should pronounce the name (used by npm run voice)
 # style: optional, a short description of how the player plays (shown when hovering the player)
+# main: optional, favourite champion (e.g. Leona); their fighter in the reveal is styled after it
 `;
 
 export function playersToYaml(players: Player[]): string {
@@ -34,6 +36,7 @@ export function playersToYaml(players: Player[]): string {
       playing: p.active,
       ...(p.say ? { say: p.say } : {}),
       ...(p.style ? { style: p.style } : {}),
+      ...(p.main ? { main: p.main } : {}),
     })),
   };
   return HEADER + stringify(doc);
@@ -96,6 +99,7 @@ export function playersFromYaml(text: string): ImportResult {
       active: entry?.playing === true,
       ...(typeof entry?.say === 'string' && entry.say.trim() ? { say: entry.say.trim() } : {}),
       ...(typeof entry?.style === 'string' && entry.style.trim() ? { style: entry.style.trim() } : {}),
+      ...(typeof entry?.main === 'string' && entry.main.trim() ? { main: entry.main.trim() } : {}),
     });
   }
   return { ok: true, players };
