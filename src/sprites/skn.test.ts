@@ -29,7 +29,9 @@ function sampleSkn() {
   for (const i of [0, 1, 2]) u16(i);
   for (let i = 0; i < 3; i++) {
     for (const x of [i, i * 2, i * 3]) f32(x); // position
-    o += 4 + 16; // bones, weights
+    new Uint8Array(buf, o, 4).set([i, 0, 0, 0]); // bones
+    o += 4;
+    for (const x of [1, 0, 0, 0]) f32(x); // weights
     for (const x of [0, 1, 0]) f32(x); // normal
     for (const x of [i / 2, 1 - i / 2]) f32(x); // uv
   }
@@ -37,13 +39,15 @@ function sampleSkn() {
 }
 
 describe('.skn reader', () => {
-  it('reads submeshes, indices, positions, normals and uvs', () => {
+  it('reads submeshes, indices, positions, normals, uvs and bone weights', () => {
     const m = parseSkn(sampleSkn());
     expect(m.submeshes).toEqual([{ name: 'body', startIndex: 0, indexCount: 3 }]);
     expect([...m.indices]).toEqual([0, 1, 2]);
     expect([...m.positions]).toEqual([0, 0, 0, 1, 2, 3, 2, 4, 6]);
     expect([...m.normals]).toEqual([0, 1, 0, 0, 1, 0, 0, 1, 0]);
     expect([...m.uvs]).toEqual([0, 1, 0.5, 0.5, 1, 0]);
+    expect([...m.bones]).toEqual([0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0]);
+    expect([...m.weights].filter((_, i) => i % 4 === 0)).toEqual([1, 1, 1]);
   });
 
   it('rejects other files', () => {

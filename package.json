@@ -10,7 +10,8 @@
     "test": "vitest run",
     "voice": "node scripts/generate-voice.mjs",
     "champions": "node scripts/update-champions.mjs",
-    "models": "node scripts/update-models.mjs"
+    "models": "node scripts/update-models.mjs",
+    "fighters": "node scripts/render-fighters.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

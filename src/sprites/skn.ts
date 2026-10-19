@@ -1,5 +1,5 @@
-// Reader for League of Legends skinned meshes (.skn), enough to draw a model in its bind pose:
-// positions, normals, UVs, triangle indices and named submeshes. Bone weights are skipped.
+// Reader for League of Legends skinned meshes (.skn): positions, normals, UVs, triangle indices, named
+// submeshes, and per-vertex bone indices and weights (for posing it with a skeleton).
 // Layout (little endian), as documented by the community (LeagueToolkit / CommunityDragon):
 //   u32 magic 0x00112233, u16 major, u16 minor
 //   major > 0: u32 submesh count, then per submesh: char[64] name, u32 first vertex, vertex count,
@@ -20,6 +20,10 @@ export interface SknMesh {
   positions: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
+  /** 4 bone indices per vertex (into the skeleton's influences list). */
+  bones: Uint8Array;
+  /** 4 bone weights per vertex. */
+  weights: Float32Array;
   indices: Uint16Array;
   submeshes: Submesh[];
 }
@@ -67,11 +71,15 @@ export function parseSkn(buffer: ArrayBuffer): SknMesh {
   const positions = new Float32Array(vertexCount * 3);
   const normals = new Float32Array(vertexCount * 3);
   const uvs = new Float32Array(vertexCount * 2);
+  const bones = new Uint8Array(vertexCount * 4);
+  const weights = new Float32Array(vertexCount * 4);
   for (let i = 0; i < vertexCount; i++) {
     const b = o + i * vertexSize;
     for (let k = 0; k < 3; k++) positions[i * 3 + k] = v.getFloat32(b + k * 4, true);
+    for (let k = 0; k < 4; k++) bones[i * 4 + k] = v.getUint8(b + 12 + k);
+    for (let k = 0; k < 4; k++) weights[i * 4 + k] = v.getFloat32(b + 16 + k * 4, true);
     for (let k = 0; k < 3; k++) normals[i * 3 + k] = v.getFloat32(b + 32 + k * 4, true);
     for (let k = 0; k < 2; k++) uvs[i * 2 + k] = v.getFloat32(b + 44 + k * 4, true);
   }
-  return { positions, normals, uvs, indices, submeshes };
+  return { positions, normals, uvs, bones, weights, indices, submeshes };
 }

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { championPixelArt } from '../sprites/championArt';
 import { championModelSprite } from '../sprites/championModel';
+import { SHEET_FPS, SHEET_H, SHEET_W, loadSheet, sheetFor, type Sheet } from '../sprites/fighterSheets';
 import { SPRITE_H, SPRITE_W, costumeFor, drawPose, frontOf, type Pixels, type Pose } from '../sprites/fighter';
 
 export type FighterAction = 'idle' | 'attack' | 'parry';
@@ -75,27 +76,65 @@ async function stillFor(main: string): Promise<Still | null> {
   return art ? { kind: 'portrait', canvas: art, front: 0.97 } : null;
 }
 
-/** Start rendering a champion's fighter early (e.g. when the reveal opens). */
-export const prepareFighter = (main: string) => void stillFor(main);
+/** Start loading a champion's fighter early (e.g. when the reveal opens). */
+export const prepareFighter = (main: string) => void (sheetFor(main) ? loadSheet(main) : stillFor(main));
+
+type Look = { kind: 'sheet'; image: HTMLImageElement } | { kind: 'still'; still: Still } | { kind: 'sprite' };
+
+/** The best fighter we can show: the animated sheet, else the 3D model, else the portrait, else a sprite. */
+async function lookFor(main?: string): Promise<Look> {
+  if (!main) return { kind: 'sprite' };
+  const image = sheetFor(main) ? await loadSheet(main) : null;
+  if (image) return { kind: 'sheet', image };
+  const still = await stillFor(main);
+  return still ? { kind: 'still', still } : { kind: 'sprite' };
+}
 
 /**
- * A player's fighter: their main champion's in-game model as pixel art, else the champion's pixelated
- * portrait, else an animated pixel sprite. Blue faces right, red is mirrored to face left.
+ * A player's fighter: their main champion animated from the game's own model and animations (idle, and
+ * the taunt on the clash), else a still render of the model, else the champion's pixelated portrait,
+ * else a generated pixel sprite. Blue faces right, red is mirrored to face left.
  */
 export default function PixelFighter({ name, main, side, action }: Props) {
-  const [still, setStill] = useState<Still | null>(null);
+  const [look, setLook] = useState<Look | null>(null);
   useEffect(() => {
     let live = true;
-    setStill(null);
-    if (main) void stillFor(main).then((s) => live && setStill(s));
+    setLook(null);
+    void lookFor(main).then((l) => live && setLook(l));
     return () => {
       live = false;
     };
   }, [main]);
-  return still ? (
-    <StillFighter still={still} side={side} action={action} />
-  ) : (
-    <Sprite name={name} main={main} side={side} action={action} />
+  if (!look) return <span className={`pixel-fighter sheet ${side}`} />;
+  if (look.kind === 'sheet') return <SheetFighter image={look.image} sheet={sheetFor(main)!} side={side} action={action} />;
+  if (look.kind === 'still') return <StillFighter still={look.still} side={side} action={action} />;
+  return <Sprite name={name} main={main} side={side} action={action} />;
+}
+
+/** Plays the idle loop, and the taunt once (then idle again) when the clash comes. */
+function SheetFighter({ image, sheet, side, action }: { image: HTMLImageElement; sheet: Sheet; side: 'blue' | 'red'; action: FighterAction }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const g = ref.current?.getContext('2d');
+    if (!g) return;
+    const show = (frame: number) => {
+      g.clearRect(0, 0, SHEET_W, SHEET_H);
+      g.drawImage(image, frame * SHEET_W, 0, SHEET_W, SHEET_H, 0, 0, SHEET_W, SHEET_H);
+    };
+    const taunting = action !== 'idle';
+    let i = 0;
+    show(taunting ? sheet.idle : 0);
+    const timer = window.setInterval(() => {
+      i++;
+      if (taunting && i < sheet.taunt) show(sheet.idle + i);
+      else show((taunting ? i - sheet.taunt : i) % sheet.idle);
+    }, 1000 / SHEET_FPS);
+    return () => window.clearInterval(timer);
+  }, [image, sheet, action]);
+  return (
+    <span className={`pixel-fighter sheet ${side}`}>
+      <canvas ref={ref} width={SHEET_W} height={SHEET_H} aria-hidden="true" />
+    </span>
   );
 }
 

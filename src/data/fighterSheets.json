@@ -1,0 +1,91 @@
+{
+  "w": 128,
+  "h": 168,
+  "fps": 12,
+  "sheets": {
+    "Akali": {
+      "idle": 18,
+      "taunt": 42
+    },
+    "Brand": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Chogath": {
+      "idle": 24,
+      "taunt": 22
+    },
+    "Garen": {
+      "idle": 26,
+      "taunt": 42
+    },
+    "Jinx": {
+      "idle": 13,
+      "taunt": 31
+    },
+    "KogMaw": {
+      "idle": 20,
+      "taunt": 42
+    },
+    "Leona": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Malzahar": {
+      "idle": 24,
+      "taunt": 34
+    },
+    "MissFortune": {
+      "idle": 16,
+      "taunt": 42
+    },
+    "Nami": {
+      "idle": 26,
+      "taunt": 42
+    },
+    "Nautilus": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Orianna": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Quinn": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Rakan": {
+      "idle": 36,
+      "taunt": 26
+    },
+    "TahmKench": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Talon": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Viego": {
+      "idle": 24,
+      "taunt": 40
+    },
+    "Warwick": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Xerath": {
+      "idle": 36,
+      "taunt": 42
+    },
+    "Yone": {
+      "idle": 36,
+      "taunt": 32
+    },
+    "Yorick": {
+      "idle": 36,
+      "taunt": 42
+    }
+  }
+}

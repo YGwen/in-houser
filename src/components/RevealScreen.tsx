@@ -5,6 +5,7 @@ import { clash, duelSting, fightJingle, vsHit, whoosh } from '../audio/sfx';
 import { ROLES, ROLE_LABELS, type Player, type Role, type TeamResult } from '../types';
 import ChampionTag from './ChampionTag';
 import PixelFighter, { IMPACT_MS, prepareFighter } from './PixelFighter';
+import { tauntSeconds } from '../sprites/fighterSheets';
 
 interface Props {
   result: TeamResult;
@@ -56,6 +57,7 @@ const MIN_VS = 0.65; // after the slam, before the red player
 const MIN_RED = 0.5; // after the red player appears
 const CLASH = 0.7; // the attack and the parry
 const HOLD = 1.1; // after the clash, before the next card
+const TAUNT_HOLD = 0.4; // after the taunts (which already run for up to 3.5 s), before the next card
 const MIN_DUEL = 0.8; // duel banner before the lane title
 const FIGHT_HOLD = 1.2; // FIGHT! alone, before the recap appears under it
 const RECAP_SECONDS = 30; // how long the recap stays before the reveal closes (NEXT/SKIP close it earlier)
@@ -138,11 +140,18 @@ export default function RevealScreen({ result, muted, onToggleMute, announcer, o
       await step(STAGE.red, nameLine(result.red[role]), MIN_RED);
       if (cancelled) return;
       show(STAGE.clash);
-      await wait(IMPACT_MS / 1000);
-      if (cancelled) return;
-      clash();
-      await wait(CLASH - IMPACT_MS / 1000);
-      await wait(HOLD);
+      // Animated champions taunt each other; the others (still renders, sprites) attack and parry.
+      const taunt = Math.max(tauntSeconds(result.blue[role].main), tauntSeconds(result.red[role].main));
+      if (taunt) {
+        await wait(taunt);
+        await wait(TAUNT_HOLD);
+      } else {
+        await wait(IMPACT_MS / 1000);
+        if (cancelled) return;
+        clash();
+        await wait(CLASH - IMPACT_MS / 1000);
+        await wait(HOLD);
+      }
       await announcerIdle();
       if (!cancelled) next();
     })();
