@@ -10,64 +10,82 @@ players:
     rank: 1
     role: support
     playing: true
+    say: "Mahss"
   - name: Tsyuko
     rank: 3.5
     playing: true
   - name: ToLLL
     rank: 5
     playing: true
+    say: "Toll"
   - name: DMZ
     rank: 2.5
     playing: true
+    say: "Day Em Zed"
   - name: Greg
     rank: 3
     playing: true
   - name: Zeult
     rank: 4.5
     playing: true
+    say: "Zerlt"
   - name: Gorhok
     rank: 2
     role: adc
     playing: true
+    say: "Gor-ock"
   - name: Samy
     rank: 3
     playing: true
+    say: "Sah-mee"
   - name: Azod
     rank: 3
     playing: true
+    say: "Ah-zod"
   - name: Momo
     rank: 2
     playing: true
   - name: Thogae
     rank: 3.5
     playing: false
+    say: "Toh-gay"
   - name: Nefer
     rank: 3.5
     playing: false
+    say: "Neh-fair"
   - name: Balwé
     rank: 2
     playing: false
+    say: "Bal-way"
   - name: Dibs
     rank: 3.5
     playing: false
+    say: "Deebs"
   - name: Asha
     rank: 3
     playing: false
+    say: "Ah-shah"
   - name: Alex
     rank: 3.5
     playing: false
+    say: "Ah-lex"
   - name: Neo
     rank: 2.5
     playing: false
+    say: "Nay-oh"
   - name: Ely
     rank: 2.5
     playing: false
+    say: "Eh-lee"
   - name: Dydyre
     rank: 3
     playing: false
+    say: "Dee-deer"
   - name: Diegz
     rank: 3.5
     playing: false
+    say: "Dee-yegz"
   - name: Shanou
     rank: 2.5
     playing: false
+    say: "Shah-noo"

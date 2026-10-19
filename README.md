@@ -52,7 +52,7 @@ One-time setup (Python 3):
 ```bash
 python -m venv .venv-voice
 .venv-voice/Scripts/python -m pip install piper-tts
-.venv-voice/Scripts/python -m piper.download_voices --download-dir .venv-voice/voices en_US-ryan-high
+.venv-voice/Scripts/python -m piper.download_voices --download-dir .venv-voice/voices en_US-hfc_female-medium
 ```
 
 Then export `players.yaml` from the app into the project root and run:
@@ -64,6 +64,10 @@ npm run voice
 Only missing or changed clips are generated, so voices you already like stay the same
 (`npm run voice -- --all` regenerates everything).
 Add `say: "..."` to a player in `players.yaml` to fix how their name is pronounced.
+Names are French, so most players have a `say:` spelled for the English voice to sound French (e.g. `Sah-mee`).
+
+To compare voices or check names by ear, run `npm run dev` and open `/voice-lab.html` (dev only). Its voice samples
+live in `public/voice-lab/` and aren't committed.
 
 ---
 

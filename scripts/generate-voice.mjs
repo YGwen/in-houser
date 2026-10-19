@@ -24,7 +24,8 @@ const regenerateAll = args.includes('--all');
 const playersPath = resolve(args.find((a) => !a.startsWith('--')) ?? join(root, 'players.yaml'));
 const venv = join(root, '.venv-voice');
 const python = join(venv, process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
-const model = process.env.VOICE_MODEL ?? join(venv, 'voices', 'en_US-ryan-high.onnx');
+// Announcer voice, picked in the voice lab (F3). Override with VOICE_MODEL=path/to/voice.onnx.
+const model = process.env.VOICE_MODEL ?? join(venv, 'voices', 'en_US-hfc_female-medium.onnx');
 const outDir = join(root, 'public', 'voice');
 
 for (const [what, path] of [
