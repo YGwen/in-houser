@@ -1,11 +1,13 @@
 import { repeatScorer } from './history';
-import { ROLES, ROLE_LABELS, type Duel, type PlayedGame, type Player, type Role, type TeamResult, type TeamRoster } from './types';
+import { ROLES, ROLE_LABELS, type Apart, type Duel, type PlayedGame, type Player, type Role, type TeamResult, type TeamRoster } from './types';
 
 export type Rng = () => number;
 
 export interface GenerateInput {
   players: Player[];
   duels: Duel[];
+  /** Pairs of players who must be on opposite teams (pairs with a player not playing are ignored). */
+  apart?: Apart[];
   /** Accept any split whose rank gap is at most (best possible gap + tolerance). */
   tolerance: number;
   /** Games played earlier, most recent first: used to avoid repeating roles and teammates. */
@@ -39,7 +41,7 @@ function forcedDuelLane(duel: Duel, byId: Map<string, Player>): Role | null {
 /** True if `player` must never get `role` (a lock to a role overrides any ban). */
 export const isBanned = (player: Player, role: Role) => !player.fixedRole && player.bannedRole === role;
 
-export function validate(players: Player[], duels: Duel[]): string[] {
+export function validate(players: Player[], duels: Duel[], apart: Apart[] = []): string[] {
   const errors: string[] = [];
   const active = players.filter((p) => p.active);
   const byId = new Map(active.map((p) => [p.id, p]));
@@ -89,7 +91,57 @@ export function validate(players: Player[], duels: Duel[]): string[] {
     }
   }
 
+  // Duels and opposite-team pairs both split players; with only two teams, a loop of an odd number of
+  // such pairs (A-B, B-C, C-A) can't be satisfied.
+  const loop = oddLoop([...duels.map((d) => [d.challengerId, d.opponentId]), ...activeApart(apart, byId).map((p) => [p.aId, p.bId])]);
+  if (loop) {
+    errors.push(`${loop.map((id) => byId.get(id)?.name ?? '?').join(', ')} can't all be on opposite teams of each other.`);
+  }
+
   return errors;
+}
+
+/** Opposite-team pairs whose two players are both playing tonight (the others are kept for later). */
+function activeApart(apart: Apart[], byId: Map<string, Player>) {
+  return apart.filter((p) => p.aId !== p.bId && byId.has(p.aId) && byId.has(p.bId));
+}
+
+/** Players forming an odd loop of "opposite teams" pairs (impossible with two teams), or null. */
+function oddLoop(pairs: string[][]): string[] | null {
+  const links = new Map<string, string[]>();
+  for (const [a, b] of pairs) {
+    links.set(a, [...(links.get(a) ?? []), b]);
+    links.set(b, [...(links.get(b) ?? []), a]);
+  }
+  const side = new Map<string, number>();
+  const parent = new Map<string, string | null>();
+  for (const start of links.keys()) {
+    if (side.has(start)) continue;
+    side.set(start, 0);
+    parent.set(start, null);
+    const queue = [start];
+    while (queue.length) {
+      const id = queue.shift()!;
+      for (const next of links.get(id)!) {
+        if (!side.has(next)) {
+          side.set(next, 1 - side.get(id)!);
+          parent.set(next, id);
+          queue.push(next);
+        } else if (side.get(next) === side.get(id)) {
+          // Same side: the two paths back to the start plus this pair form the loop.
+          const path = (from: string) => {
+            const out = [from];
+            for (let p = parent.get(from); p; p = parent.get(p)) out.push(p);
+            return out;
+          };
+          const [pa, pb] = [path(id), path(next)];
+          const common = pa.find((x) => pb.includes(x))!;
+          return [...pa.slice(0, pa.indexOf(common) + 1), ...pb.slice(0, pb.indexOf(common)).reverse()];
+        }
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -226,11 +278,12 @@ export function allSplits(players: Player[]): [Player[], Player[]][] {
   return splits;
 }
 
-export function generate({ players, duels, tolerance, history = [], now = Date.now(), rng = Math.random }: GenerateInput): GenerateOutput {
-  const errors = validate(players, duels);
+export function generate({ players, duels, apart = [], tolerance, history = [], now = Date.now(), rng = Math.random }: GenerateInput): GenerateOutput {
+  const errors = validate(players, duels, apart);
   if (errors.length) return { ok: false, errors };
 
   const active = players.filter((p) => p.active);
+  const pairs = activeApart(apart, new Map(active.map((p) => [p.id, p])));
   const scorer = repeatScorer(history, now);
 
   type Candidate = { gap: number; repeats: number; roles: NonNullable<ReturnType<typeof assignRoles>> };
@@ -238,14 +291,15 @@ export function generate({ players, duels, tolerance, history = [], now = Date.n
   for (const [a, b] of allSplits(active)) {
     const aIds = new Set(a.map((p) => p.id));
     const duelsSplit = duels.every((d) => aIds.has(d.challengerId) !== aIds.has(d.opponentId));
-    if (!duelsSplit) continue;
+    const pairsSplit = pairs.every((p) => aIds.has(p.aId) !== aIds.has(p.bId));
+    if (!duelsSplit || !pairsSplit) continue;
     const roles = assignRoles(a, b, duels, rng, scorer.rolePenalty);
     if (!roles) continue;
     valid.push({ gap: Math.abs(total(a) - total(b)), repeats: roles.penalty + scorer.teammatePenalty(a, b), roles });
   }
 
   if (!valid.length) {
-    return { ok: false, errors: ['No valid teams exist with these locked roles, bans and duels. Try changing a duel lane, a locked role or a ban.'] };
+    return { ok: false, errors: ['No valid teams exist with these locked roles, bans, duels and opposite-team pairs. Try changing a duel lane, a locked role, a ban or a pair.'] };
   }
 
   // Balance first: only splits close to the best rank gap.

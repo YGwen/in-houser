@@ -1,10 +1,12 @@
-import type { Duel, PlayedGame, Player } from './types';
+import type { Apart, Duel, PlayedGame, Player } from './types';
 
 const KEY = 'in-houser:v1';
 
 export interface SavedState {
   players: Player[];
   duels: Duel[];
+  /** Pairs of players who must be on opposite teams; kept from game to game. */
+  apart: Apart[];
   tolerance: number;
   muted: boolean;
   /** Voice announcer during the reveal. */
@@ -15,7 +17,7 @@ export interface SavedState {
   rosterVersion?: string;
 }
 
-export const DEFAULT_STATE: SavedState = { players: [], duels: [], tolerance: 1, muted: false, announcer: true, history: [] };
+export const DEFAULT_STATE: SavedState = { players: [], duels: [], apart: [], tolerance: 1, muted: false, announcer: true, history: [] };
 
 export const MAX_HISTORY = 20;
 

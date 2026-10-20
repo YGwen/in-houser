@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generate, validate, type Rng } from './generator';
 import { recentGames, toPlayedGame } from './history';
-import { RANKS as ALL_RANKS, ROLES, formatStars, type Duel, type PlayedGame, type Player, type Rank, type Role, type TeamResult } from './types';
+import { RANKS as ALL_RANKS, ROLES, formatStars, type Apart, type Duel, type PlayedGame, type Player, type Rank, type Role, type TeamResult } from './types';
 
 function seeded(seed: number): Rng {
   // mulberry32
@@ -274,5 +274,55 @@ describe('validate', () => {
 
   it('rejects a duel with a player not playing tonight', () => {
     expect(validate(makePlayers({ 1: { active: false } }), [duel(0, 1)]).length).toBeGreaterThan(0);
+  });
+});
+
+describe('opposite-team pairs', () => {
+  const apart = (a: number, b: number): Apart => ({ id: `a${a}-${b}`, aId: `p${a}`, bId: `p${b}` });
+  const sameTeam = (r: TeamResult, a: string, b: string) => {
+    const blue = new Set(ROLES.map((role) => r.blue[role].id));
+    return blue.has(a) === blue.has(b);
+  };
+
+  it('always puts the two players on opposite teams, in any lanes', () => {
+    // p1 and p2 (both 4 stars) would often be teammates; with the pair they never are.
+    const players = makePlayers();
+    for (let seed = 1; seed <= 40; seed++) {
+      const out = generate({ players, duels: [], apart: [apart(1, 2), apart(3, 4)], tolerance: 1, rng: seeded(seed) });
+      if (!out.ok) throw new Error(out.errors.join('; '));
+      expect(sameTeam(out.result, 'p1', 'p2')).toBe(false);
+      expect(sameTeam(out.result, 'p3', 'p4')).toBe(false);
+      expect(out.result.duelLanes).toEqual([]); // not a duel
+    }
+  });
+
+  it('ignores a pair when one of the players is not playing tonight', () => {
+    const players = makePlayers();
+    const out = generate({ players, duels: [], apart: [apart(1, 99)], tolerance: 1, rng: seeded(1) });
+    expect(out.ok).toBe(true);
+  });
+
+  it('works alongside duels', () => {
+    const players = makePlayers();
+    const out = generate({ players, duels: [duel(0, 1, 'mid')], apart: [apart(0, 2)], tolerance: 3, rng: seeded(3) });
+    if (!out.ok) throw new Error(out.errors.join('; '));
+    expect(sameTeam(out.result, 'p0', 'p1')).toBe(false);
+    expect(sameTeam(out.result, 'p0', 'p2')).toBe(false);
+  });
+
+  it('rejects a loop of pairs two teams cannot split', () => {
+    const errors = validate(makePlayers(), [], [apart(1, 2), apart(2, 3), apart(3, 1)]);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/^(P\d, ){2}P\d can't all be on opposite teams of each other\.$/);
+    for (const name of ['P1', 'P2', 'P3']) expect(errors[0]).toContain(name);
+  });
+
+  it('rejects a loop mixing a duel and pairs', () => {
+    const errors = validate(makePlayers(), [duel(1, 2)], [apart(2, 3), apart(3, 1)]);
+    expect(errors.some((e) => e.includes("can't all be on opposite teams"))).toBe(true);
+  });
+
+  it('allows an even loop (A and C together, B and D together)', () => {
+    expect(validate(makePlayers(), [], [apart(1, 2), apart(2, 3), apart(3, 4), apart(4, 1)])).toEqual([]);
   });
 });

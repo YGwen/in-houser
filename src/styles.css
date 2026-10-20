@@ -355,6 +355,10 @@ select:disabled {
 .duel-list small {
   color: var(--muted);
 }
+/* An opposite-teams pair with a player sitting out tonight: kept, but ignored. */
+.duel-list li.inactive > span {
+  opacity: 0.5;
+}
 
 .tolerance {
   display: grid;

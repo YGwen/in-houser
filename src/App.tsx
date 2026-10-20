@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { setAnnouncerEnabled, stopAnnouncer } from './audio/announcer';
 import { audio, setMuted } from './audio/engine';
+import ApartPanel from './components/ApartPanel';
 import DuelPanel from './components/DuelPanel';
 import HistoryPanel from './components/HistoryPanel';
 import RevealScreen from './components/RevealScreen';
@@ -11,7 +12,7 @@ import { generate } from './generator';
 import { EVENING_MS, toPlayedGame } from './history';
 import { REPO_ROSTER_VERSION, mergeRepoRoster, repoRoster } from './roster';
 import { MAX_HISTORY, loadState, newId, saveState } from './storage';
-import type { Duel, PlayedGame, Player, TeamResult } from './types';
+import type { Apart, Duel, PlayedGame, Player, TeamResult } from './types';
 
 /**
  * Saved state, with the roster refreshed from the repo's players.yaml when this device has never
@@ -23,13 +24,15 @@ function loadInitialState() {
   const players = mergeRepoRoster(repoRoster(), saved.players);
   const ids = new Set(players.map((p) => p.id));
   const duels = saved.duels.filter((d) => ids.has(d.challengerId) && ids.has(d.opponentId));
-  return { ...saved, players, duels, rosterVersion: REPO_ROSTER_VERSION };
+  const apart = saved.apart.filter((p) => ids.has(p.aId) && ids.has(p.bId));
+  return { ...saved, players, duels, apart, rosterVersion: REPO_ROSTER_VERSION };
 }
 
 export default function App() {
   const [initial] = useState(loadInitialState);
   const [players, setPlayers] = useState<Player[]>(initial.players);
   const [duels, setDuels] = useState<Duel[]>(initial.duels);
+  const [apart, setApart] = useState<Apart[]>(initial.apart);
   const [tolerance, setTolerance] = useState(initial.tolerance);
   const [muted, setMutedState] = useState(initial.muted);
   const [announcer, setAnnouncer] = useState(initial.announcer);
@@ -40,8 +43,8 @@ export default function App() {
   const [revealing, setRevealing] = useState(false);
 
   useEffect(
-    () => saveState({ players, duels, tolerance, muted, announcer, history, rosterVersion: REPO_ROSTER_VERSION }),
-    [players, duels, tolerance, muted, announcer, history],
+    () => saveState({ players, duels, apart, tolerance, muted, announcer, history, rosterVersion: REPO_ROSTER_VERSION }),
+    [players, duels, apart, tolerance, muted, announcer, history],
   );
   useEffect(() => {
     setMuted(muted);
@@ -54,10 +57,13 @@ export default function App() {
     setPlayers(next);
     const active = new Set(next.filter((p) => p.active).map((p) => p.id));
     setDuels((ds) => ds.filter((d) => active.has(d.challengerId) && active.has(d.opponentId)));
+    // Opposite-team pairs stay while their players are just sitting out; they go when a player is removed.
+    const ids = new Set(next.map((p) => p.id));
+    setApart((ps) => ps.filter((p) => ids.has(p.aId) && ids.has(p.bId)));
   };
 
   const roll = (withReveal: boolean) => {
-    const out = generate({ players, duels, tolerance, history });
+    const out = generate({ players, duels, apart, tolerance, history });
     if (!out.ok) {
       setErrors(out.errors);
       return;
@@ -101,6 +107,7 @@ export default function App() {
         />
         <div className="side">
           <DuelPanel players={players.filter((p) => p.active)} duels={duels} onChange={setDuels} />
+          <ApartPanel players={players} apart={apart} onChange={setApart} />
 
           <section className="panel generate">
             <h2>Generate</h2>

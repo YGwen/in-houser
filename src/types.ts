@@ -48,6 +48,13 @@ export interface Duel {
   lane: Role | 'random';
 }
 
+/** Two players who must be on opposite teams (any lanes). Unlike a duel, it stays from game to game. */
+export interface Apart {
+  id: string;
+  aId: string;
+  bId: string;
+}
+
 export type TeamRoster = Record<Role, Player>;
 
 /** A game the group actually played (rerolls are not recorded). Players are stored by id. */
