@@ -8,7 +8,8 @@
 // definition and textures from CommunityDragon. Each frame is posed on the CPU, drawn by a small
 // cel-shading rasterizer with ink lines (scripts/lib/raster.mjs), then the whole sheet is reduced to one
 // small SNES palette with a dark outline. Output: public/fighters/<Champion>.png (frames side by side)
-// and src/data/fighterSheets.json. Only these pixel renders are committed, never the game files.
+// and src/data/fighterSheets.json (each sheet's frame size, and where the W x H body box sits in it).
+// Only these pixel renders are committed, never the game files.
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -127,15 +128,14 @@ async function renderChampion(id) {
     const frames = [...times(idle, IDLE_MAX).map((t) => [idle, t]), ...times(taunt, TAUNT_MAX).map((t) => [taunt, t])];
     const posed = frames.map(([anim, t]) => skin(mesh, skl, poseMatrices(skl, anim, t)));
 
-    // One frame for the whole sheet, so the fighter doesn't jump or rescale between frames: the union of
-    // the idle frames' body boxes (vertex percentiles, so a few far-off vertices don't shrink everyone).
-    // A taunt may raise the top by up to 40%, so a jump (Jinx) stays in the frame, but a thrown prop
-    // (Leona's sword, Miss Fortune's pistols) leaves it rather than shrinking the fighter.
+    // Scale: the body at rest (union of the idle frames' body boxes, from vertex percentiles so a few
+    // far-off vertices don't shrink everyone) fills a W x H box. Every sheet uses that scale, so all
+    // fighters look the same size.
     const view = toView(YAW, PITCH);
     const used = new Set();
     for (const p of parts) for (let i = p.start; i < p.start + p.count; i++) used.add(mesh.indices[i]);
     const box = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
-    let tauntTop = -Infinity;
+    const all = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
     const idleCount = times(idle, IDLE_MAX).length;
     posed.forEach(({ positions }, f) => {
       const xs = [];
@@ -153,25 +153,45 @@ async function renderChampion(id) {
         box.x1 = Math.max(box.x1, q(xs, 0.98));
         box.y0 = Math.min(box.y0, q(ys, 0.005));
         box.y1 = Math.max(box.y1, q(ys, 0.995));
-      } else tauntTop = Math.max(tauntTop, q(ys, 0.97));
+      }
+      all.x0 = Math.min(all.x0, xs[0]);
+      all.x1 = Math.max(all.x1, xs[xs.length - 1]);
+      all.y0 = Math.min(all.y0, ys[0]);
+      all.y1 = Math.max(all.y1, ys[ys.length - 1]);
     });
-    box.y1 = Math.max(box.y1, Math.min(tauntTop, box.y0 + (box.y1 - box.y0) * 1.4));
     const aspect = W / H;
     const h = Math.max(box.y1 - box.y0, (box.x1 - box.x0) / aspect) * 1.08;
     const w = h * aspect;
     const cx = (box.x0 + box.x1) / 2;
-    const frame = { x0: cx - w / 2, x1: cx + w / 2, y0: box.y0 - h * 0.03, y1: box.y0 - h * 0.03 + h };
+    const body = { x0: cx - w / 2, x1: cx + w / 2, y0: box.y0 - h * 0.03, y1: box.y0 - h * 0.03 + h };
+    const k = W / w; // pixels per model unit
 
-    const sheetW = W * frames.length;
-    const sheet = new Uint8ClampedArray(sheetW * H * 4);
+    // Canvas: big enough for every frame (jumps, side steps, thrown props), so nothing is cropped. The
+    // reveal lets it spill past the fighter's box. Far-flung extremes are capped to keep sheets small.
+    const ext = {
+      x0: Math.max(Math.min(all.x0, body.x0), body.x0 - w * 2),
+      x1: Math.min(Math.max(all.x1, body.x1), body.x1 + w * 2),
+      y0: Math.max(Math.min(all.y0, body.y0), body.y0 - h * 0.6),
+      y1: Math.min(Math.max(all.y1, body.y1), body.y1 + h * 3),
+    };
+    const MARGIN = 2; // pixels, room for the outline
+    const left = Math.ceil((body.x0 - ext.x0) * k) + MARGIN; // where the body box sits in the canvas
+    const top = Math.ceil((ext.y1 - body.y1) * k) + MARGIN;
+    const fw = left + Math.ceil((ext.x1 - body.x0) * k) + MARGIN;
+    const fh = top + Math.ceil((body.y1 - ext.y0) * k) + MARGIN;
+    const frame = { x0: body.x0 - left / k, x1: body.x0 - left / k + fw / k, y1: body.y1 + top / k, y0: body.y1 + top / k - fh / k };
+
+    const sheetW = fw * frames.length;
+    const sheet = new Uint8ClampedArray(sheetW * fh * 4);
     posed.forEach(({ positions, normals }, f) => {
-      const px = renderSprite({ positions, normals, uvs: mesh.uvs, indices: mesh.indices, parts, yaw: YAW, pitch: PITCH, frame, w: W, h: H });
-      for (let y = 0; y < H; y++) sheet.set(px.subarray(y * W * 4, (y + 1) * W * 4), (y * sheetW + f * W) * 4);
+      const px = renderSprite({ positions, normals, uvs: mesh.uvs, indices: mesh.indices, parts, yaw: YAW, pitch: PITCH, frame, w: fw, h: fh });
+      for (let y = 0; y < fh; y++) sheet.set(px.subarray(y * fw * 4, (y + 1) * fw * 4), (y * sheetW + f * fw) * 4);
     });
     quantize(sheet, { k: 28, width: sheetW, alpha: true });
     mkdirSync(join(root, 'public/fighters'), { recursive: true });
-    writeFileSync(join(root, `public/fighters/${id}.png`), encodeIndexedPng(sheetW, H, sheet));
-    return { idle: times(idle, IDLE_MAX).length, taunt: times(taunt, TAUNT_MAX).length };
+    writeFileSync(join(root, `public/fighters/${id}.png`), encodeIndexedPng(sheetW, fh, sheet));
+    // Frame size, and where the W x H body box sits in it.
+    return { idle: idleCount, taunt: times(taunt, TAUNT_MAX).length, w: fw, h: fh, x: left, y: top };
   } finally {
     wad.close();
   }

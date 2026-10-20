@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { championPixelArt } from '../sprites/championArt';
 import { championModelSprite } from '../sprites/championModel';
-import { SHEET_FPS, SHEET_H, SHEET_W, loadSheet, sheetFor, type Sheet } from '../sprites/fighterSheets';
+import { BODY_H, BODY_W, SHEET_FPS, loadSheet, sheetFor, type Sheet } from '../sprites/fighterSheets';
 import { SPRITE_H, SPRITE_W, costumeFor, drawPose, frontOf, type Pixels, type Pose } from '../sprites/fighter';
 
 export type FighterAction = 'idle' | 'attack' | 'parry';
@@ -118,8 +118,8 @@ function SheetFighter({ image, sheet, side, action }: { image: HTMLImageElement;
     const g = ref.current?.getContext('2d');
     if (!g) return;
     const show = (frame: number) => {
-      g.clearRect(0, 0, SHEET_W, SHEET_H);
-      g.drawImage(image, frame * SHEET_W, 0, SHEET_W, SHEET_H, 0, 0, SHEET_W, SHEET_H);
+      g.clearRect(0, 0, sheet.w, sheet.h);
+      g.drawImage(image, frame * sheet.w, 0, sheet.w, sheet.h, 0, 0, sheet.w, sheet.h);
     };
     const taunting = action !== 'idle';
     let i = 0;
@@ -131,9 +131,23 @@ function SheetFighter({ image, sheet, side, action }: { image: HTMLImageElement;
     }, 1000 / SHEET_FPS);
     return () => window.clearInterval(timer);
   }, [image, sheet, action]);
+  // The element is the body box; the frame is larger (room for jumps and thrown props) and spills out of
+  // it, placed so the body lines up with the box.
+  const pct = (v: number, of: number) => `${(v / of) * 100}%`;
   return (
     <span className={`pixel-fighter sheet ${side}`}>
-      <canvas ref={ref} width={SHEET_W} height={SHEET_H} aria-hidden="true" />
+      <canvas
+        ref={ref}
+        width={sheet.w}
+        height={sheet.h}
+        aria-hidden="true"
+        style={{
+          left: pct(-sheet.x, BODY_W),
+          top: pct(-sheet.y, BODY_H),
+          width: pct(sheet.w, BODY_W),
+          height: pct(sheet.h, BODY_H),
+        }}
+      />
     </span>
   );
 }
