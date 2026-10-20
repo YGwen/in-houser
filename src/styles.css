@@ -1170,6 +1170,18 @@ select:disabled {
   aspect-ratio: 128 / 168;
   animation: none;
 }
+/* The frame is larger than the body box (room for jumps and thrown props) and spills out of it. */
+.pixel-fighter.sheet canvas {
+  position: absolute;
+  max-width: none;
+}
+/* Mirror the whole box (not just the canvas, which is off-center) so the red body stays in its box. */
+.pixel-fighter.sheet.red {
+  transform: scaleX(-1);
+}
+.pixel-fighter.sheet.red canvas {
+  transform: none;
+}
 @media (max-width: 480px) {
   .pixel-fighter.sheet {
     width: clamp(100px, 31vw, 140px);

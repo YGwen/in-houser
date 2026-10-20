@@ -8,10 +8,17 @@ export interface Sheet {
   /** Frames of the idle loop, then of the taunt. */
   idle: number;
   taunt: number;
+  /** Frame size: big enough for every frame (jumps, thrown props), so it's larger than the body box. */
+  w: number;
+  h: number;
+  /** Where the body box (BODY_W x BODY_H) sits in a frame. */
+  x: number;
+  y: number;
 }
 
-export const SHEET_W = data.w;
-export const SHEET_H = data.h;
+/** The fighter at rest fills this box; every sheet shares its scale. */
+export const BODY_W = data.w;
+export const BODY_H = data.h;
 export const SHEET_FPS = data.fps;
 
 const sheets: Record<string, Sheet> = data.sheets;
